@@ -1,0 +1,36 @@
+version: '3.1'
+services:
+  api:
+    container_name: api
+    image: zzuag/api-pinpoint:latest
+    ports:
+      - "8081:8080"
+    volumes:
+      - ${PINPOINT_AGENT_PATH}:/pinpoint-agent
+    environment:
+      SPRING_PROFILES_ACTIVE: ${API_SPRING_PROFILES_ACTIVE}
+      PINPOINT_PROFILES: ${PINPOINT_PROFILES}
+      PINPOINT_JAR: ${PINPOINT_JAR}
+      CORS_MAX_AGE: 1800
+      COOKIE_DOMAIN: "zzuag.shop"
+      COOKIE_PATH: "/"
+      COOKIE_MAX_AGE: 1800
+      DB_HOSTNAME: ${DB_HOSTNAME}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      RABBITMQ_HOST: ${RABBITMQ_HOST}
+      RABBITMQ_PORT: ${RABBITMQ_PORT}
+      RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      TOKEN_SECRETKEY: ${TOKEN_SECRETKEY}
+      CORS_PATH_PATTERNS: "/**"
+      CORS_ORIGIN_PATTERNS: "*"
+      CORS_ALLOWED_METHODS: "GET,POST,PUT,DELETE,OPTIONS"
+      CORS_ALLOWED_HEADERS: "*"
+      CORS_EXPOSED_HEADERS: "Set-Cookie, Authorization, Content-Type, X-Requested-With, Accept, Origin, Access-Control-Request-Method, Access-Control-Request-Headers, Access-Control-Allow-Origin, Access-Control-Allow-Credentials"
+      CORS_ALLOW_CREDENTIALS: "true"
+      TZ: "Asia/Seoul"
+      JAVA_OPTS: "-Xmx512m -Xms256m"
