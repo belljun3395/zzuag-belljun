@@ -1,0 +1,6 @@
+#!/bin/sh
+
+cd ..
+docker-compose -f docker-compose-api-pinpoint.yml down
+docker-compose -f docker-compose-api-pinpoint.yml up -d
+sleep 10
