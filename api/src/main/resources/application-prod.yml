@@ -1,0 +1,14 @@
+server:
+  port: 8080
+spring:
+  config:
+    use-legacy-processing: true
+  profiles:
+    include:
+      - flyway-entity
+      - rabbit-prod
+      - mysql-prod
+      - redis-prod
+      - log-prod
+      - security-prod
+      - cookie-prod

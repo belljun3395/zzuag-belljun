@@ -1,0 +1,51 @@
+apply from: '../../config/dependencies/web-dependencies.gradle'
+apply from: '../../config/dependencies/database-dependencies.gradle'
+apply from: '../../config/tasks/docs-task.gradle'
+
+dependencies {
+    implementation project(':module:flyway')
+    implementation project(':module:rabbitmq')
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+}
+
+def imageName = project.hasProperty('imageName') ? imageName : "notification"
+def releaseVersion = project.hasProperty('releaseVersion') ? releaseVersion : null
+
+task buildDockerImage {
+    dependsOn bootJar
+
+    doLast {
+        exec {
+            workingDir '.'
+            commandLine 'docker','run','--privileged','--rm','tonistiigi/binfmt','--install','all'
+        }
+        exec {
+            workingDir '.'
+            commandLine 'docker','buildx','create','--use'
+        }
+        exec {
+            workingDir '.'
+            commandLine 'docker','buildx', 'build','--platform=linux/amd64,linux/arm64', '-t', "zzuag/${imageName}", '--build-arg', "RELEASE_VERSION=${releaseVersion}", '.', '--push'
+        }
+    }
+}
+
+task buildPinpointDockerImage {
+    dependsOn bootJar
+
+    doLast {
+        exec {
+            workingDir '.'
+            commandLine 'docker','run','--privileged','--rm','tonistiigi/binfmt','--install','all'
+        }
+        exec {
+            workingDir '.'
+            commandLine 'docker','buildx','create','--use'
+        }
+        exec {
+            workingDir '.'
+            commandLine 'docker', 'buildx', 'build', '--platform=linux/amd64,linux/arm64', '-t', "zzuag/${imageName}-pinpoint", '--build-arg', "RELEASE_VERSION=${releaseVersion}", '-f', 'Dockerfile.pinpoint', '.', '--push'
+        }
+    }
+}

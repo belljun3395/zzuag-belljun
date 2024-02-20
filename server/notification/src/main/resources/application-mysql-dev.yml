@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    jdbcUrl: ${DB_HOSTNAME}/notification?allowPublicKeyRetrieval=true&rewriteBatchedStatements=true
+    user: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: true

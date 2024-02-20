@@ -1,0 +1,15 @@
+rootProject.name = 'recycle'
+// api
+include 'api'
+
+// server
+include 'server'
+include 'server:notification'
+findProject(':server:notification')?.name = 'notification'
+
+// module
+include 'module'
+include 'module:flyway'
+findProject(':module:flyway')?.name = 'flyway'
+include 'module:rabbitmq'
+findProject(':module:rabbitmq')?.name = 'rabbitmq'

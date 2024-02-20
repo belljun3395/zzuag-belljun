@@ -1,0 +1,7 @@
+zzaug:
+  flyway:
+    notification:
+      locations: classpath:db/migration/notification
+      sql-migration-suffixes: sql
+      baseline-on-migrate: true
+      baseline-version: 0

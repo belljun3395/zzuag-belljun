@@ -1,0 +1,7 @@
+zzaug:
+  flyway:
+    api:
+      locations: classpath:db/migration/api
+      sql-migration-suffixes: sql
+      baseline-on-migrate: true
+      baseline-version: 0

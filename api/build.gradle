@@ -1,0 +1,68 @@
+apply from: '../config/dependencies/web-dependencies.gradle'
+apply from: '../config/dependencies/database-dependencies.gradle'
+apply from: '../config/tasks/docs-task.gradle'
+
+dependencies {
+    implementation project(':module:flyway')
+    implementation project(':module:rabbitmq')
+
+    // redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.session:spring-session-data-redis'
+
+    // security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    testImplementation 'org.springframework.security:spring-security-test'
+
+    // jackson
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'com.fasterxml.jackson.core:jackson-core'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+    implementation group: 'com.google.code.findbugs', name: 'jsr305', version: "${jsr305Version}"
+
+    //jwt
+    implementation "io.jsonwebtoken:jjwt-api:${jsonwebtokenVersion}"
+    implementation "io.jsonwebtoken:jjwt-impl:${jsonwebtokenVersion}"
+    implementation "io.jsonwebtoken:jjwt-jackson:${jsonwebtokenVersion}"
+}
+
+def imageName = project.hasProperty('imageName') ? imageName : "api"
+def releaseVersion = project.hasProperty('releaseVersion') ? releaseVersion : null
+
+task buildDockerImage {
+    dependsOn bootJar
+
+    doLast {
+        exec {
+            workingDir '.'
+            commandLine 'docker','run','--privileged','--rm','tonistiigi/binfmt','--install','all'
+        }
+        exec {
+            workingDir '.'
+            commandLine 'docker','buildx','create','--use'
+        }
+        exec {
+            workingDir '.'
+            commandLine 'docker','buildx', 'build','--platform=linux/amd64,linux/arm64', '-t', "zzuag/${imageName}", '--build-arg', "RELEASE_VERSION=${releaseVersion}", '.', '--push'
+        }
+    }
+}
+
+task buildPinpointDockerImage {
+    dependsOn bootJar
+
+    doLast {
+        exec {
+            workingDir '.'
+            commandLine 'docker','run','--privileged','--rm','tonistiigi/binfmt','--install','all'
+        }
+        exec {
+            workingDir '.'
+            commandLine 'docker','buildx','create','--use'
+        }
+        exec {
+            workingDir '.'
+            commandLine 'docker', 'buildx', 'build', '--platform=linux/amd64,linux/arm64', '-t', "zzuag/${imageName}-pinpoint", '--build-arg', "RELEASE_VERSION=${releaseVersion}", '-f', 'Dockerfile.pinpoint', '.', '--push'
+        }
+    }
+}
