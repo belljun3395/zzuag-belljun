@@ -10,7 +10,7 @@ import com.zzaug.api.domain.exception.DBSource;
 import com.zzaug.api.domain.exception.PasswordNotMatchException;
 import com.zzaug.api.domain.exception.SourceNotFoundException;
 import com.zzaug.api.domain.external.dao.member.AuthenticationDao;
-import com.zzaug.api.domain.external.security.auth.EnrollBlackTokenCacheCommand;
+import com.zzaug.api.domain.external.security.auth.EnrollWhiteTokenCacheCommand;
 import com.zzaug.api.domain.external.service.log.LoginLogCommand;
 import com.zzaug.api.domain.model.member.MemberAuthentication;
 import com.zzaug.api.domain.support.entity.MemberAuthenticationConverter;
@@ -19,6 +19,7 @@ import com.zzaug.api.domain.support.security.RoleUserAuthTokenGenerator;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class LoginUseCase {
 
+	@Value("${security.jwt.token.validtime.access}")
+	private Long accessTokenValidTime;
+
 	private final AuthenticationDao authenticationDao;
 
 	private final LoginLogCommand loginLogCommand;
@@ -37,7 +41,7 @@ public class LoginUseCase {
 
 	// security
 	private final PasswordEncoder passwordEncoder;
-	private final EnrollBlackTokenCacheCommand enrollBlackTokenCacheCommand;
+	private final EnrollWhiteTokenCacheCommand enrollWhiteTokenCacheCommand;
 
 	private final RoleUserAuthTokenGenerator roleUserAuthTokenGenerator;
 
@@ -69,7 +73,8 @@ public class LoginUseCase {
 		loginLogCommand.saveLoginLog(memberAuthentication.getMemberId(), userAgent);
 
 		// check duplication
-		enrollBlackTokenCacheCommand.execute(authToken.getAccessToken());
+		enrollWhiteTokenCacheCommand.execute(
+				authToken.getAccessToken(), accessTokenValidTime, memberAuthentication.getMemberId());
 
 		publishEvent(memberAuthentication);
 
