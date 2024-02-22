@@ -21,7 +21,7 @@ public class MemberModifiedEventListenerConfig {
 	private final MemberModifiedEventListener memberModifiedEventListener;
 
 	@Bean
-	SimpleMessageListenerContainer MemberModifiedEventListenerContainer(
+	SimpleMessageListenerContainer memberModifiedEventListenerContainer(
 			SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory) {
 		SimpleMessageListenerContainer container =
 				rabbitListenerContainerFactory.createListenerContainer();
