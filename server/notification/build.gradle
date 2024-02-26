@@ -1,4 +1,3 @@
-apply from: '../../config/dependencies/web-dependencies.gradle'
 apply from: '../../config/dependencies/database-dependencies.gradle'
 apply from: '../../config/tasks/docs-task.gradle'
 

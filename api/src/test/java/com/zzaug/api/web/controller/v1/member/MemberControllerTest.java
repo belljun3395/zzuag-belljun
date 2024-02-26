@@ -16,19 +16,18 @@ import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.epages.restdocs.apispec.Schema;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zzaug.api.ApiApp;
-import com.zzaug.api.domain.dto.member.GetMemberUseCaseResponse;
-import com.zzaug.api.domain.dto.member.MemberAuthToken;
-import com.zzaug.api.domain.dto.member.PostMemberUseCaseResponse;
-import com.zzaug.api.domain.dto.member.SearchMemberUseCaseResponse;
-import com.zzaug.api.domain.dto.member.UpdateMemberUseCaseResponse;
-import com.zzaug.api.domain.usecase.member.DeleteMemberUseCase;
-import com.zzaug.api.domain.usecase.member.GetMemberUseCase;
-import com.zzaug.api.domain.usecase.member.LogOutUseCase;
-import com.zzaug.api.domain.usecase.member.LoginUseCase;
-import com.zzaug.api.domain.usecase.member.PostMemberUseCase;
-import com.zzaug.api.domain.usecase.member.RenewalTokenUseCase;
-import com.zzaug.api.domain.usecase.member.SearchMemberUseCase;
-import com.zzaug.api.domain.usecase.member.UpdateMemberUseCase;
+import com.zzaug.api.domain.member.dto.GetMemberUseCaseResponse;
+import com.zzaug.api.domain.member.dto.MemberAuthToken;
+import com.zzaug.api.domain.member.dto.PostMemberUseCaseResponse;
+import com.zzaug.api.domain.member.dto.SearchMemberUseCaseResponse;
+import com.zzaug.api.domain.member.dto.UpdateMemberUseCaseResponse;
+import com.zzaug.api.domain.member.usecase.DeleteMemberUseCase;
+import com.zzaug.api.domain.member.usecase.GetMemberUseCase;
+import com.zzaug.api.domain.member.usecase.LoginUseCase;
+import com.zzaug.api.domain.member.usecase.PostMemberUseCase;
+import com.zzaug.api.domain.member.usecase.RenewalTokenUseCase;
+import com.zzaug.api.domain.member.usecase.SearchMemberUseCase;
+import com.zzaug.api.domain.member.usecase.UpdateMemberUseCase;
 import com.zzaug.api.web.controller.config.TestTokenUserDetailsService;
 import com.zzaug.api.web.controller.v1.description.Description;
 import com.zzaug.api.web.dto.member.LoginRequest;
@@ -66,7 +65,6 @@ class MemberControllerTest {
 	@MockBean PostMemberUseCase postMemberUseCase;
 	@MockBean DeleteMemberUseCase deleteMemberUseCase;
 	@MockBean LoginUseCase loginUseCase;
-	@MockBean LogOutUseCase logOutUseCase;
 	@MockBean RenewalTokenUseCase renewalTokenUseCase;
 	@MockBean SearchMemberUseCase searchMemberUseCase;
 
@@ -246,35 +244,6 @@ class MemberControllerTest {
 																}))
 												.responseHeaders(
 														new HeaderDescriptorWithType[] {Description.setCookieHeader()})
-												.build())));
-	}
-
-	@Test
-	@DisplayName(POST_BASE_URL_DNAME + "/logout")
-	@WithUserDetails(userDetailsServiceBeanName = "testTokenUserDetailsService")
-	void logout() throws Exception {
-		// set service mock
-		Cookie cookie = new Cookie("refreshToken", testToken);
-
-		mockMvc
-				.perform(
-						post(BASE_URL + "/logout", 0)
-								.contentType(MediaType.APPLICATION_JSON)
-								.header(X_ZZAUG_ID, UUID.randomUUID())
-								.header(HttpHeaders.AUTHORIZATION, "Bearer accessToken")
-								.cookie(cookie))
-				.andExpect(status().is2xxSuccessful())
-				.andDo(
-						document(
-								"LogoutMember",
-								resource(
-										ResourceSnippetParameters.builder()
-												.description("로그아웃을 진행합니다.")
-												.tag(TAG)
-												.requestSchema(Schema.schema("LogoutMemberRequest"))
-												.requestHeaders(Description.authHeader(), Description.xZzaugIdHeader())
-												.responseSchema(Schema.schema("LogoutMemberResponse"))
-												.responseFields(Description.success())
 												.build())));
 	}
 

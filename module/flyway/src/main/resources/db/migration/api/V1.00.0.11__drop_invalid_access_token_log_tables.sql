@@ -1,1 +1,0 @@
-DROP TABLE invalid_access_token_log;

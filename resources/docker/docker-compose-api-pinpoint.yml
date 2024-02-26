@@ -34,3 +34,4 @@ services:
       CORS_ALLOW_CREDENTIALS: "true"
       TZ: "Asia/Seoul"
       JAVA_OPTS: "-Xmx512m -Xms256m"
+      LOGSTASH_URL: ${LOGSTASH_URL}

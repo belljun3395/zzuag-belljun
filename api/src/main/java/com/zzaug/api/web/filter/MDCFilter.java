@@ -10,12 +10,12 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.connector.RequestFacade;
+import org.apache.commons.lang3.time.StopWatch;
 import org.jboss.logging.MDC;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-/** API 요청시 가장 먼저 거치며 MDC를 활용하여 로깅을 수행하는 필터 */
 @Slf4j
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -30,21 +30,23 @@ public class MDCFilter implements Filter {
 		} else {
 			traceId = traceId.toString();
 		}
+		StopWatch stopWatch = new StopWatch();
+		stopWatch.start();
 		MDC.put("traceId", traceId);
 		MDC.put("referer", ((RequestFacade) request).getHeader("referer"));
 		MDC.put("userAgent", ((RequestFacade) request).getHeader("user-agent"));
-		MDC.put("startTime", System.currentTimeMillis());
+		MDC.put("requestAddr", request.getRemoteAddr());
+		MDC.put("requestURL", ((RequestFacade) request).getRequestURL());
+		MDC.put("requestMethod", ((RequestFacade) request).getMethod());
 		log.info(
 				"{} -> [{}] uri : {}",
 				request.getRemoteAddr(),
 				((RequestFacade) request).getMethod(),
-				((RequestFacade) request).getRequestURI());
+				((RequestFacade) request).getRequestURL());
 		chain.doFilter(request, response);
-		MDC.put("endTime", System.currentTimeMillis());
-		MDC.put(
-				"elapsedTime",
-				System.currentTimeMillis() - Long.parseLong(MDC.get("startTime").toString()));
-		log.info("requestLogging: {}", MDC.getMap());
+		stopWatch.stop();
+		MDC.put("elapsedTime", stopWatch.getTime());
+		log.info("request-log: {}", MDC.getMap());
 		MDC.clear();
 	}
 }

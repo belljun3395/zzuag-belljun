@@ -1,28 +1,26 @@
 package com.zzaug.api.web.controller.v1.member;
 
-import com.zzaug.api.domain.dto.member.AccessTokenResponse;
-import com.zzaug.api.domain.dto.member.DeleteMemberUseCaseRequest;
-import com.zzaug.api.domain.dto.member.GetMemberUseCaseRequest;
-import com.zzaug.api.domain.dto.member.GetMemberUseCaseResponse;
-import com.zzaug.api.domain.dto.member.LogOutUseCaseRequest;
-import com.zzaug.api.domain.dto.member.LoginUseCaseRequest;
-import com.zzaug.api.domain.dto.member.MemberAuthToken;
-import com.zzaug.api.domain.dto.member.PostMemberUseCaseRequest;
-import com.zzaug.api.domain.dto.member.RenewalTokenUseCaseRequest;
-import com.zzaug.api.domain.dto.member.SearchMemberUseCaseRequest;
-import com.zzaug.api.domain.dto.member.SearchMemberUseCaseResponse;
-import com.zzaug.api.domain.dto.member.UpdateMemberUseCaseRequest;
-import com.zzaug.api.domain.dto.member.UpdateMemberUseCaseResponse;
-import com.zzaug.api.domain.usecase.member.DeleteMemberUseCase;
-import com.zzaug.api.domain.usecase.member.GetMemberUseCase;
-import com.zzaug.api.domain.usecase.member.LogOutUseCase;
-import com.zzaug.api.domain.usecase.member.LoginUseCase;
-import com.zzaug.api.domain.usecase.member.PostMemberUseCase;
-import com.zzaug.api.domain.usecase.member.RenewalTokenUseCase;
-import com.zzaug.api.domain.usecase.member.SearchMemberUseCase;
-import com.zzaug.api.domain.usecase.member.UpdateMemberUseCase;
+import com.zzaug.api.domain.member.dto.AccessTokenResponse;
+import com.zzaug.api.domain.member.dto.DeleteMemberUseCaseRequest;
+import com.zzaug.api.domain.member.dto.GetMemberUseCaseRequest;
+import com.zzaug.api.domain.member.dto.GetMemberUseCaseResponse;
+import com.zzaug.api.domain.member.dto.LoginUseCaseRequest;
+import com.zzaug.api.domain.member.dto.MemberAuthToken;
+import com.zzaug.api.domain.member.dto.PostMemberUseCaseRequest;
+import com.zzaug.api.domain.member.dto.RenewalTokenUseCaseRequest;
+import com.zzaug.api.domain.member.dto.SearchMemberUseCaseRequest;
+import com.zzaug.api.domain.member.dto.SearchMemberUseCaseResponse;
+import com.zzaug.api.domain.member.dto.UpdateMemberUseCaseRequest;
+import com.zzaug.api.domain.member.dto.UpdateMemberUseCaseResponse;
+import com.zzaug.api.domain.member.usecase.DeleteMemberUseCase;
+import com.zzaug.api.domain.member.usecase.GetMemberUseCase;
+import com.zzaug.api.domain.member.usecase.LoginUseCase;
+import com.zzaug.api.domain.member.usecase.PostMemberUseCase;
+import com.zzaug.api.domain.member.usecase.RenewalTokenUseCase;
+import com.zzaug.api.domain.member.usecase.SearchMemberUseCase;
+import com.zzaug.api.domain.member.usecase.UpdateMemberUseCase;
 import com.zzaug.api.security.authentication.token.TokenUserDetails;
-import com.zzaug.api.security.filter.token.AccessTokenResolver;
+import com.zzaug.api.security.token.TokenResolver;
 import com.zzaug.api.web.dto.member.LoginRequest;
 import com.zzaug.api.web.dto.member.MemberSaveRequest;
 import com.zzaug.api.web.dto.member.MemberUpdateRequest;
@@ -32,11 +30,12 @@ import com.zzaug.api.web.support.ApiResponseGenerator;
 import com.zzaug.api.web.support.CookieGenerator;
 import com.zzaug.api.web.support.CookieSameSite;
 import com.zzaug.api.web.support.MessageCode;
+import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -63,13 +62,13 @@ public class MemberController {
 	private static final String MEMBER_ID_SESSION_KEY = "memberId";
 
 	private final CookieGenerator cookieGenerator;
+	private final TokenResolver tokenResolver;
 
 	private final GetMemberUseCase getMemberUseCase;
 	private final UpdateMemberUseCase updateMemberUseCase;
 	private final PostMemberUseCase postMemberUseCase;
 	private final DeleteMemberUseCase deleteMemberUseCase;
 	private final LoginUseCase loginUseCase;
-	private final LogOutUseCase logOutUseCase;
 	private final RenewalTokenUseCase renewalTokenUseCase;
 	private final SearchMemberUseCase searchMemberUseCase;
 
@@ -86,20 +85,14 @@ public class MemberController {
 
 	@PutMapping()
 	public ApiResponse<ApiResponse.SuccessBody<AccessTokenResponse>> update(
-			@CookieValue(REFRESH_TOKEN_COOKIE_NAME) String refreshTokenValue,
 			@AuthenticationPrincipal TokenUserDetails userDetails,
-			@RequestBody MemberUpdateRequest request,
-			HttpServletRequest httpServletRequest) {
+			@RequestBody MemberUpdateRequest request) {
 		Long memberId = Long.valueOf(userDetails.getId());
-		String authorization = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION);
-		String accessToken = AccessTokenResolver.resolve(authorization);
 		UpdateMemberUseCaseRequest useCaseRequest =
 				UpdateMemberUseCaseRequest.builder()
 						.memberId(memberId)
 						.certification(request.getCertification())
 						.password(request.getPassword())
-						.accessToken(accessToken)
-						.refreshToken(refreshTokenValue)
 						.build();
 		UpdateMemberUseCaseResponse response = updateMemberUseCase.execute(useCaseRequest);
 		return ApiResponseGenerator.success(
@@ -118,46 +111,18 @@ public class MemberController {
 
 	@PostMapping("/login")
 	public ApiResponse<ApiResponse.SuccessBody<AccessTokenResponse>> login(
-			HttpServletRequest httpServletRequest,
-			@Valid @RequestBody LoginRequest request,
-			HttpServletResponse httpServletResponse) {
+			@Valid @RequestBody LoginRequest request, HttpServletResponse httpServletResponse) {
 		LoginUseCaseRequest useCaseRequest =
 				LoginUseCaseRequest.builder()
 						.certification(request.getCertification())
 						.password(request.getPassword())
-						.userAgent(httpServletRequest.getHeader(HttpHeaders.USER_AGENT))
 						.build();
 		MemberAuthToken response = loginUseCase.execute(useCaseRequest);
 		ResponseCookie refreshToken =
 				cookieGenerator.createCookie(
 						CookieSameSite.LAX, REFRESH_TOKEN_COOKIE_NAME, response.getRefreshToken());
 		httpServletResponse.addHeader(HttpHeaders.SET_COOKIE, refreshToken.toString());
-		HttpSession session = httpServletRequest.getSession();
-		session.setAttribute(MEMBER_ID_SESSION_KEY, response.getMemberId());
 		return ApiResponseGenerator.success(response.toResponse(), HttpStatus.OK, MessageCode.SUCCESS);
-	}
-
-	@PostMapping("/logout")
-	public ApiResponse<ApiResponse.Success> logout(
-			@AuthenticationPrincipal TokenUserDetails userDetails,
-			HttpServletRequest httpServletRequest,
-			HttpServletResponse httpServletResponse,
-			@CookieValue(value = REFRESH_TOKEN_COOKIE_NAME) String refreshToken) {
-		Long memberId = Long.valueOf(userDetails.getId());
-		String authorization = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION);
-		String accessToken = AccessTokenResolver.resolve(authorization);
-		LogOutUseCaseRequest useCaseRequest =
-				LogOutUseCaseRequest.builder()
-						.memberId(memberId)
-						.accessToken(accessToken)
-						.refreshToken(refreshToken)
-						.build();
-		logOutUseCase.execute(useCaseRequest);
-		ResponseCookie clearCookie =
-				cookieGenerator.clearCookie(CookieSameSite.LAX, REFRESH_TOKEN_COOKIE_NAME);
-		httpServletResponse.addHeader(HttpHeaders.SET_COOKIE, clearCookie.toString());
-		httpServletRequest.getSession().invalidate();
-		return ApiResponseGenerator.success(HttpStatus.OK, MessageCode.SUCCESS);
 	}
 
 	@GetMapping("/{id}")
@@ -189,13 +154,9 @@ public class MemberController {
 			@CookieValue(REFRESH_TOKEN_COOKIE_NAME) String refreshTokenValue,
 			HttpServletRequest httpServletRequest,
 			HttpServletResponse httpServletResponse) {
-		String authorization = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION);
-		String accessTokenValue = AccessTokenResolver.resolve(authorization);
+		Long memberId = resolveMemberId(refreshTokenValue);
 		RenewalTokenUseCaseRequest useCaseRequest =
-				RenewalTokenUseCaseRequest.builder()
-						.accessToken(accessTokenValue)
-						.refreshToken(refreshTokenValue)
-						.build();
+				RenewalTokenUseCaseRequest.builder().memberId(memberId).build();
 		MemberAuthToken response = renewalTokenUseCase.execute(useCaseRequest);
 		ResponseCookie refreshToken =
 				cookieGenerator.createCookie(
@@ -203,5 +164,14 @@ public class MemberController {
 		httpServletResponse.addHeader(HttpHeaders.SET_COOKIE, refreshToken.toString());
 		httpServletRequest.getSession().setAttribute(MEMBER_ID_SESSION_KEY, response.getMemberId());
 		return ApiResponseGenerator.success(response.toResponse(), HttpStatus.OK, MessageCode.SUCCESS);
+	}
+
+	@NotNull
+	private Long resolveMemberId(String refreshToken) {
+		Optional<Long> idSource = tokenResolver.resolveId(refreshToken);
+		if (idSource.isEmpty()) {
+			throw new IllegalArgumentException();
+		}
+		return idSource.get();
 	}
 }

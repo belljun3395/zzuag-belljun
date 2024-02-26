@@ -1,1 +1,0 @@
-DROP TABLE black_token_auth;

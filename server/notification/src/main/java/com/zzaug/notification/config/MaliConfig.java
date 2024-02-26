@@ -13,8 +13,9 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 @Configuration
 public class MaliConfig {
 
-	private static final String MAIL_PROPERTIES_BEAN_NAME = BEAN_NAME_PREFIX + "MailProperties";
-	private static final String MAIL_SENDER_BEAN_NAME = BEAN_NAME_PREFIX + "JavaMailSender";
+	private static final String MAIL_BEAN_NAME_PREFIX = BEAN_NAME_PREFIX + "Mail";
+	private static final String MAIL_PROPERTIES_BEAN_NAME = MAIL_BEAN_NAME_PREFIX + "MailProperties";
+	private static final String MAIL_SENDER_BEAN_NAME = MAIL_BEAN_NAME_PREFIX + "JavaMailSender";
 
 	private static final String MAIL_SMTP_AUTH_KEY = "mail.smtp.auth";
 	private static final String MAIL_SMTP_DEBUG_KEY = "mail.smtp.debug";
