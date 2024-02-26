@@ -2,8 +2,6 @@ package com.zzaug.rabbitmq.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
-import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
-import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -25,10 +23,5 @@ public class ZRabbiMQConfig {
 	@Bean(name = BEAN_NAME_PREFIX + "ObjectMapper")
 	ObjectMapper objectMapper() {
 		return new ObjectMapper();
-	}
-
-	@Bean(name = BEAN_NAME_PREFIX + "MessageConverter")
-	MessageConverter messageConverter() {
-		return new Jackson2JsonMessageConverter();
 	}
 }

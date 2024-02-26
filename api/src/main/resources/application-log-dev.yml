@@ -1,10 +1,2 @@
-logging:
-  level:
-    root: DEBUG
-    com:
-      zzaug: DEBUG
-    org:
-      springframework:
-        transaction:
-          interceptor: DEBUG
-    sql: DEBUG
+logstash:
+  url: ${LOGSTASH_URL}

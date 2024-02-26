@@ -8,11 +8,7 @@ public interface ZRMQProperties {
 
 	String MEMBER_TOPIC_NAME = "topic.zzuag.member";
 	String MEMBER_KEY_NAME = "zzuag.member";
-	String MEMBER_STATUS_KEY_NAME = MEMBER_KEY_NAME + ".status";
-	String MEMBER_UPDATED_KEY_NAME = MEMBER_KEY_NAME + ".updated";
 	String MEMBER_QUEUE_NAME = "zzuag.member";
-	String MEMBER_STATUS_QUEUE_NAME = MEMBER_QUEUE_NAME + ".status";
-	String MEMBER_UPDATE_QUEUE_NAME = MEMBER_QUEUE_NAME + ".update";
 
 	String NOTIFICATION_TOPIC_NAME = "topic.zzuag.notification";
 	String NOTIFICATION_KEY_NAME = "zzuag.notification";

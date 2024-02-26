@@ -28,52 +28,52 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 @EnableJpaRepositories(
 		basePackages = NotificationAppConfig.BASE_PACKAGE,
-		transactionManagerRef = NotificationJpaDataSourceConfig.TRANSACTION_MANAGER_NAME,
-		entityManagerFactoryRef = NotificationJpaDataSourceConfig.NOTIFICATION_MANAGER_FACTORY_NAME)
+		transactionManagerRef = NotificationJpaDataSourceConfig.TRANSACTION_MANAGER,
+		entityManagerFactoryRef = NotificationJpaDataSourceConfig.NOTIFICATION_MANAGER_FACTORY)
 public class NotificationJpaDataSourceConfig {
 
 	public static final String NOTIFICATION_BEAN_NAME_PREFIX = NotificationAppConfig.BEAN_NAME_PREFIX;
-	public static final String NOTIFICATION_MANAGER_FACTORY_NAME =
+	public static final String NOTIFICATION_MANAGER_FACTORY =
 			NOTIFICATION_BEAN_NAME_PREFIX + "ManagerFactory";
-	public static final String TRANSACTION_MANAGER_NAME =
+	public static final String TRANSACTION_MANAGER =
 			NOTIFICATION_BEAN_NAME_PREFIX + "TransactionManager";
-	public static final String DATASOURCE_NAME = NOTIFICATION_BEAN_NAME_PREFIX + "DataSource";
-	private static final String JPA_PROPERTIES_NAME = NOTIFICATION_BEAN_NAME_PREFIX + "JpaProperties";
-	private static final String HIBERNATE_PROPERTIES_NAME =
+	public static final String DATASOURCE = NOTIFICATION_BEAN_NAME_PREFIX + "DataSource";
+	private static final String JPA_PROPERTIES = NOTIFICATION_BEAN_NAME_PREFIX + "JpaProperties";
+	private static final String HIBERNATE_PROPERTIES =
 			NOTIFICATION_BEAN_NAME_PREFIX + "HibernateProperties";
-	private static final String JPA_VENDOR_ADAPTER_NAME =
+	private static final String JPA_VENDOR_ADAPTER =
 			NOTIFICATION_BEAN_NAME_PREFIX + "JpaVendorAdapter";
 	private static final String PERSIST_UNIT = NOTIFICATION_BEAN_NAME_PREFIX + "PersistenceUnit";
-	private static final String NOTIFICATION_MANAGER_FACTORY_BUILDER_NAME =
+	private static final String NOTIFICATION_MANAGER_FACTORY_BUILDER =
 			NOTIFICATION_BEAN_NAME_PREFIX + "ManagerFactoryBuilder";
 
-	@Bean(name = DATASOURCE_NAME)
+	@Bean(name = DATASOURCE)
 	@ConfigurationProperties(prefix = "spring.datasource")
 	public DataSource dataSource() {
 		return DataSourceBuilder.create().build();
 	}
 
-	@Bean(name = JPA_PROPERTIES_NAME)
+	@Bean(name = JPA_PROPERTIES)
 	@ConfigurationProperties(prefix = "spring.jpa")
 	public JpaProperties jpaProperties() {
 		return new JpaProperties();
 	}
 
-	@Bean(name = HIBERNATE_PROPERTIES_NAME)
+	@Bean(name = HIBERNATE_PROPERTIES)
 	@ConfigurationProperties(prefix = "spring.jpa.hibernate")
 	public HibernateProperties hibernateProperties() {
 		return new HibernateProperties();
 	}
 
-	@Bean(name = JPA_VENDOR_ADAPTER_NAME)
+	@Bean(name = JPA_VENDOR_ADAPTER)
 	public JpaVendorAdapter jpaVendorAdapter() {
 		return new HibernateJpaVendorAdapter();
 	}
 
-	@Bean(name = NOTIFICATION_MANAGER_FACTORY_BUILDER_NAME)
+	@Bean(name = NOTIFICATION_MANAGER_FACTORY_BUILDER)
 	public EntityManagerFactoryBuilder entityManagerFactoryBuilder(
-			@Qualifier(value = JPA_VENDOR_ADAPTER_NAME) JpaVendorAdapter jpaVendorAdapter,
-			@Qualifier(value = JPA_PROPERTIES_NAME) JpaProperties jpaProperties,
+			@Qualifier(value = JPA_VENDOR_ADAPTER) JpaVendorAdapter jpaVendorAdapter,
+			@Qualifier(value = JPA_PROPERTIES) JpaProperties jpaProperties,
 			ObjectProvider<PersistenceUnitManager> persistenceUnitManager) {
 
 		Map<String, String> jpaPropertyMap = jpaProperties.getProperties();
@@ -81,10 +81,10 @@ public class NotificationJpaDataSourceConfig {
 				jpaVendorAdapter, jpaPropertyMap, persistenceUnitManager.getIfAvailable());
 	}
 
-	@Bean(name = NOTIFICATION_MANAGER_FACTORY_NAME)
+	@Bean(name = NOTIFICATION_MANAGER_FACTORY)
 	public LocalContainerEntityManagerFactoryBean entityManagerFactory(
-			@Qualifier(value = DATASOURCE_NAME) DataSource dataSource,
-			@Qualifier(value = NOTIFICATION_MANAGER_FACTORY_BUILDER_NAME)
+			@Qualifier(value = DATASOURCE) DataSource dataSource,
+			@Qualifier(value = NOTIFICATION_MANAGER_FACTORY_BUILDER)
 					EntityManagerFactoryBuilder builder) {
 		Map<String, String> jpaPropertyMap = jpaProperties().getProperties();
 		Map<String, Object> hibernatePropertyMap =
@@ -97,9 +97,9 @@ public class NotificationJpaDataSourceConfig {
 				.build();
 	}
 
-	@Bean(name = TRANSACTION_MANAGER_NAME)
+	@Bean(name = TRANSACTION_MANAGER)
 	public PlatformTransactionManager transactionManager(
-			@Qualifier(NOTIFICATION_MANAGER_FACTORY_NAME) EntityManagerFactory emf) {
+			@Qualifier(NOTIFICATION_MANAGER_FACTORY) EntityManagerFactory emf) {
 		return new JpaTransactionManager(emf);
 	}
 }

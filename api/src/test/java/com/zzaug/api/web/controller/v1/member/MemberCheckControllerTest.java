@@ -14,12 +14,12 @@ import com.epages.restdocs.apispec.ResourceSnippetParameters;
 import com.epages.restdocs.apispec.Schema;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zzaug.api.ApiApp;
-import com.zzaug.api.domain.dto.member.CheckDuplicationUseCaseResponse;
-import com.zzaug.api.domain.dto.member.CheckEmailAuthUseCaseResponse;
-import com.zzaug.api.domain.dto.member.EmailAuthUseCaseResponse;
-import com.zzaug.api.domain.usecase.member.CheckDuplicationUseCase;
-import com.zzaug.api.domain.usecase.member.CheckEmailAuthUseCase;
-import com.zzaug.api.domain.usecase.member.EmailAuthUseCase;
+import com.zzaug.api.domain.member.dto.CheckCertificationDuplicationUseCaseResponse;
+import com.zzaug.api.domain.member.dto.CheckEmailAuthUseCaseResponse;
+import com.zzaug.api.domain.member.dto.EmailAuthUseCaseResponse;
+import com.zzaug.api.domain.member.usecase.CheckCertificationDuplicationUseCase;
+import com.zzaug.api.domain.member.usecase.CheckEmailAuthUseCase;
+import com.zzaug.api.domain.member.usecase.EmailAuthUseCase;
 import com.zzaug.api.web.controller.config.TestTokenUserDetailsService;
 import com.zzaug.api.web.controller.v1.description.Description;
 import com.zzaug.api.web.dto.member.CheckEmailAuthRequest;
@@ -50,7 +50,7 @@ class MemberCheckControllerTest {
 	@Autowired private MockMvc mockMvc;
 	@Autowired private ObjectMapper objectMapper;
 
-	@MockBean CheckDuplicationUseCase checkDuplicationUseCase;
+	@MockBean CheckCertificationDuplicationUseCase checkCertificationDuplicationUseCase;
 	@MockBean EmailAuthUseCase emailAuthUseCase;
 	@MockBean CheckEmailAuthUseCase checkEmailAuthUseCase;
 
@@ -77,8 +77,9 @@ class MemberCheckControllerTest {
 	@WithUserDetails(userDetailsServiceBeanName = "testTokenUserDetailsService")
 	void check() throws Exception {
 		// set service mock
-		when(checkDuplicationUseCase.execute(any()))
-				.thenReturn(CheckDuplicationUseCaseResponse.builder().duplication(true).build());
+		when(checkCertificationDuplicationUseCase.execute(any()))
+				.thenReturn(
+						CheckCertificationDuplicationUseCaseResponse.builder().duplication(true).build());
 
 		mockMvc
 				.perform(

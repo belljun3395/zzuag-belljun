@@ -28,52 +28,48 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 @EnableJpaRepositories(
 		basePackages = ApiAppConfig.BASE_PACKAGE,
-		transactionManagerRef = ApiJpaDataSourceConfig.TRANSACTION_MANAGER_NAME,
-		entityManagerFactoryRef = ApiJpaDataSourceConfig.ENTITY_MANAGER_FACTORY_NAME)
+		transactionManagerRef = ApiJpaDataSourceConfig.TRANSACTION_MANAGER,
+		entityManagerFactoryRef = ApiJpaDataSourceConfig.ENTITY_MANAGER_FACTORY)
 public class ApiJpaDataSourceConfig {
 
-	public static final String ENTITY_BEAN_NAME_PREFIX = ApiAppConfig.BEAN_NAME_PREFIX + "Entity";
-	public static final String ENTITY_MANAGER_FACTORY_NAME =
-			ENTITY_BEAN_NAME_PREFIX + "ManagerFactory";
-	public static final String TRANSACTION_MANAGER_NAME =
-			ENTITY_BEAN_NAME_PREFIX + "TransactionManager";
-	public static final String DATASOURCE_NAME = ENTITY_BEAN_NAME_PREFIX + "DataSource";
-	private static final String JPA_PROPERTIES_NAME = ENTITY_BEAN_NAME_PREFIX + "JpaProperties";
-	private static final String HIBERNATE_PROPERTIES_NAME =
-			ENTITY_BEAN_NAME_PREFIX + "HibernateProperties";
-	private static final String JPA_VENDOR_ADAPTER_NAME =
-			ENTITY_BEAN_NAME_PREFIX + "JpaVendorAdapter";
-	private static final String PERSIST_UNIT = ENTITY_BEAN_NAME_PREFIX + "PersistenceUnit";
-	private static final String ENTITY_MANAGER_FACTORY_BUILDER_NAME =
-			ENTITY_BEAN_NAME_PREFIX + "ManagerFactoryBuilder";
+	private static final String JPA_BEAN_NAME_PREFIX = ApiAppConfig.BEAN_NAME_PREFIX + "Jpa";
+	public static final String ENTITY_MANAGER_FACTORY = JPA_BEAN_NAME_PREFIX + "ManagerFactory";
+	public static final String TRANSACTION_MANAGER = JPA_BEAN_NAME_PREFIX + "TransactionManager";
+	public static final String DATASOURCE = JPA_BEAN_NAME_PREFIX + "DataSource";
+	private static final String JPA_PROPERTIES = JPA_BEAN_NAME_PREFIX + "JpaProperties";
+	private static final String HIBERNATE_PROPERTIES = JPA_BEAN_NAME_PREFIX + "HibernateProperties";
+	private static final String JPA_VENDOR_ADAPTER = JPA_BEAN_NAME_PREFIX + "JpaVendorAdapter";
+	private static final String PERSIST_UNIT = JPA_BEAN_NAME_PREFIX + "PersistenceUnit";
+	private static final String ENTITY_MANAGER_FACTORY_BUILDER =
+			JPA_BEAN_NAME_PREFIX + "ManagerFactoryBuilder";
 
-	@Bean(name = JPA_PROPERTIES_NAME)
+	@Bean(name = JPA_PROPERTIES)
 	@ConfigurationProperties("spring.jpa")
 	public JpaProperties jpaProperties() {
 		return new JpaProperties();
 	}
 
-	@Bean(name = HIBERNATE_PROPERTIES_NAME)
+	@Bean(name = HIBERNATE_PROPERTIES)
 	@ConfigurationProperties("spring.jpa.hibernate")
 	public HibernateProperties hibernateProperties() {
 		return new HibernateProperties();
 	}
 
-	@Bean(name = DATASOURCE_NAME)
+	@Bean(name = DATASOURCE)
 	@ConfigurationProperties("spring.datasource")
 	public DataSource dataSource() {
 		return DataSourceBuilder.create().build();
 	}
 
-	@Bean(name = JPA_VENDOR_ADAPTER_NAME)
+	@Bean(name = JPA_VENDOR_ADAPTER)
 	public JpaVendorAdapter jpaVendorAdapter() {
 		return new HibernateJpaVendorAdapter();
 	}
 
-	@Bean(name = ENTITY_MANAGER_FACTORY_BUILDER_NAME)
+	@Bean(name = ENTITY_MANAGER_FACTORY_BUILDER)
 	public EntityManagerFactoryBuilder entityManagerFactoryBuilder(
-			@Qualifier(value = JPA_VENDOR_ADAPTER_NAME) JpaVendorAdapter jpaVendorAdapter,
-			@Qualifier(value = JPA_PROPERTIES_NAME) JpaProperties jpaProperties,
+			@Qualifier(value = JPA_VENDOR_ADAPTER) JpaVendorAdapter jpaVendorAdapter,
+			@Qualifier(value = JPA_PROPERTIES) JpaProperties jpaProperties,
 			ObjectProvider<PersistenceUnitManager> persistenceUnitManager) {
 
 		Map<String, String> jpaPropertyMap = jpaProperties.getProperties();
@@ -81,10 +77,10 @@ public class ApiJpaDataSourceConfig {
 				jpaVendorAdapter, jpaPropertyMap, persistenceUnitManager.getIfAvailable());
 	}
 
-	@Bean(name = ENTITY_MANAGER_FACTORY_NAME)
+	@Bean(name = ENTITY_MANAGER_FACTORY)
 	public LocalContainerEntityManagerFactoryBean entityManagerFactory(
-			@Qualifier(value = DATASOURCE_NAME) DataSource dataSource,
-			@Qualifier(value = ENTITY_MANAGER_FACTORY_BUILDER_NAME) EntityManagerFactoryBuilder builder) {
+			@Qualifier(value = DATASOURCE) DataSource dataSource,
+			@Qualifier(value = ENTITY_MANAGER_FACTORY_BUILDER) EntityManagerFactoryBuilder builder) {
 		Map<String, String> jpaPropertyMap = jpaProperties().getProperties();
 		Map<String, Object> hibernatePropertyMap =
 				hibernateProperties().determineHibernateProperties(jpaPropertyMap, new HibernateSettings());
@@ -96,9 +92,9 @@ public class ApiJpaDataSourceConfig {
 				.build();
 	}
 
-	@Bean(name = TRANSACTION_MANAGER_NAME)
+	@Bean(name = TRANSACTION_MANAGER)
 	public PlatformTransactionManager transactionManager(
-			@Qualifier(ENTITY_MANAGER_FACTORY_NAME) EntityManagerFactory emf) {
+			@Qualifier(ENTITY_MANAGER_FACTORY) EntityManagerFactory emf) {
 		return new JpaTransactionManager(emf);
 	}
 }
