@@ -5,6 +5,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateProperties;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateSettings;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
@@ -36,6 +37,7 @@ public class ApiJpaDataSourceConfig {
 	public static final String ENTITY_MANAGER_FACTORY = JPA_BEAN_NAME_PREFIX + "ManagerFactory";
 	public static final String TRANSACTION_MANAGER = JPA_BEAN_NAME_PREFIX + "TransactionManager";
 	public static final String DATASOURCE = JPA_BEAN_NAME_PREFIX + "DataSource";
+	public static final String DATASOURCE_PROPERTIES = JPA_BEAN_NAME_PREFIX + "DataSourceProperties";
 	private static final String JPA_PROPERTIES = JPA_BEAN_NAME_PREFIX + "JpaProperties";
 	private static final String HIBERNATE_PROPERTIES = JPA_BEAN_NAME_PREFIX + "HibernateProperties";
 	private static final String JPA_VENDOR_ADAPTER = JPA_BEAN_NAME_PREFIX + "JpaVendorAdapter";
@@ -55,10 +57,21 @@ public class ApiJpaDataSourceConfig {
 		return new HibernateProperties();
 	}
 
+	@Bean(name = DATASOURCE_PROPERTIES)
+	@ConfigurationProperties(prefix = "spring.datasource")
+	public DataSourceProperties dataSourceProperties() {
+		return new DataSourceProperties();
+	}
+
 	@Bean(name = DATASOURCE)
-	@ConfigurationProperties("spring.datasource")
-	public DataSource dataSource() {
-		return DataSourceBuilder.create().build();
+	public DataSource dataSource(ObjectProvider<DataSourceProperties> dataSourceProperties) {
+		DataSourceProperties properties = dataSourceProperties.getIfAvailable();
+		return DataSourceBuilder.create()
+				.url(properties.getUrl())
+				.username(properties.getUsername())
+				.password(properties.getPassword())
+				.driverClassName(properties.getDriverClassName())
+				.build();
 	}
 
 	@Bean(name = JPA_VENDOR_ADAPTER)

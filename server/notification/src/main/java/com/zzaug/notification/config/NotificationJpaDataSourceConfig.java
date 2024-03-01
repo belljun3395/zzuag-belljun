@@ -5,6 +5,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateProperties;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateSettings;
 import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
@@ -38,6 +39,8 @@ public class NotificationJpaDataSourceConfig {
 	public static final String TRANSACTION_MANAGER =
 			NOTIFICATION_BEAN_NAME_PREFIX + "TransactionManager";
 	public static final String DATASOURCE = NOTIFICATION_BEAN_NAME_PREFIX + "DataSource";
+	public static final String DATASOURCE_PROPERTIES =
+			NOTIFICATION_BEAN_NAME_PREFIX + "DataSourceProperties";
 	private static final String JPA_PROPERTIES = NOTIFICATION_BEAN_NAME_PREFIX + "JpaProperties";
 	private static final String HIBERNATE_PROPERTIES =
 			NOTIFICATION_BEAN_NAME_PREFIX + "HibernateProperties";
@@ -46,12 +49,6 @@ public class NotificationJpaDataSourceConfig {
 	private static final String PERSIST_UNIT = NOTIFICATION_BEAN_NAME_PREFIX + "PersistenceUnit";
 	private static final String NOTIFICATION_MANAGER_FACTORY_BUILDER =
 			NOTIFICATION_BEAN_NAME_PREFIX + "ManagerFactoryBuilder";
-
-	@Bean(name = DATASOURCE)
-	@ConfigurationProperties(prefix = "spring.datasource")
-	public DataSource dataSource() {
-		return DataSourceBuilder.create().build();
-	}
 
 	@Bean(name = JPA_PROPERTIES)
 	@ConfigurationProperties(prefix = "spring.jpa")
@@ -63,6 +60,23 @@ public class NotificationJpaDataSourceConfig {
 	@ConfigurationProperties(prefix = "spring.jpa.hibernate")
 	public HibernateProperties hibernateProperties() {
 		return new HibernateProperties();
+	}
+
+	@Bean(name = DATASOURCE_PROPERTIES)
+	@ConfigurationProperties(prefix = "spring.datasource")
+	public DataSourceProperties dataSourceProperties() {
+		return new DataSourceProperties();
+	}
+
+	@Bean(name = DATASOURCE)
+	public DataSource dataSource(ObjectProvider<DataSourceProperties> dataSourceProperties) {
+		DataSourceProperties properties = dataSourceProperties.getIfAvailable();
+		return DataSourceBuilder.create()
+				.url(properties.getUrl())
+				.username(properties.getUsername())
+				.password(properties.getPassword())
+				.driverClassName(properties.getDriverClassName())
+				.build();
 	}
 
 	@Bean(name = JPA_VENDOR_ADAPTER)

@@ -1,6 +1,6 @@
 sprig:
   datasource:
-    jdbcUrl: ${DB_HOSTNAME}/api?allowPublicKeyRetrieval=true&rewriteBatchedStatements=true
+    url: ${DB_HOSTNAME}/api?allowPublicKeyRetrieval=true&rewriteBatchedStatements=true
     user: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
