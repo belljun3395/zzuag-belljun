@@ -13,10 +13,10 @@ import com.zzaug.api.domain.member.dto.CheckEmailAuthUseCaseResponse;
 import com.zzaug.api.domain.member.dto.SuccessCheckEmailAuthUseCaseResponse;
 import com.zzaug.api.domain.member.external.security.token.RoleUserAuthToken;
 import com.zzaug.api.domain.member.external.security.token.RoleUserAuthTokenGenerator;
+import com.zzaug.api.domain.member.model.auth.EmailAuthResult;
 import com.zzaug.api.domain.member.model.auth.EmailAuthSource;
 import com.zzaug.api.domain.member.model.auth.TryCountElement;
 import com.zzaug.api.domain.member.model.member.MemberSource;
-import com.zzaug.api.domain.member.service.history.CalculateTryCountService;
 import com.zzaug.api.domain.member.service.history.SaveEmailAuthHistoryCommand;
 import com.zzaug.api.domain.member.service.member.GetMemberSourceQuery;
 import com.zzaug.api.domain.member.util.entity.EmailAuthSourceConverter;
@@ -38,7 +38,6 @@ public class CheckEmailAuthUseCase {
 
 	private final GetMemberSourceQuery getMemberSourceQuery;
 
-	private final CalculateTryCountService calculateTryCountService;
 	private final SaveEmailAuthHistoryCommand saveEmailAuthHistoryCommand;
 
 	// security
@@ -79,7 +78,7 @@ public class CheckEmailAuthUseCase {
 
 		// 이메일 인증 요청시 발급한 code와 요청한 code가 일치하는지 확인
 		if (!emailAuth.isCode(code)) {
-			tryCount = calculateTryCountService.execute(NOT_MATCH_CODE, tryCount);
+			tryCount = calculateTryCount(NOT_MATCH_CODE, tryCount);
 			EmailAuthHistoryEntity emailAuthHistoryEntity =
 					saveEmailAuthHistoryCommand.execute(
 							tryCount, memberId, emailAuthId, NOT_MATCH_CODE.getReason());
@@ -90,7 +89,7 @@ public class CheckEmailAuthUseCase {
 					.build();
 		}
 
-		tryCount = calculateTryCountService.execute(SUCCESS, tryCount);
+		tryCount = calculateTryCount(SUCCESS, tryCount);
 		EmailAuthHistoryEntity emailAuthHistoryEntity =
 				saveEmailAuthHistoryCommand.execute(tryCount, memberId, emailAuthId, SUCCESS.getReason());
 
@@ -135,5 +134,12 @@ public class CheckEmailAuthUseCase {
 					.emailAuthLogId(emailAuthLogSource.get().getId())
 					.build();
 		}
+	}
+
+	private TryCountElement calculateTryCount(EmailAuthResult result, TryCountElement tryCount) {
+		if (!result.isSuccess()) {
+			tryCount.plus();
+		}
+		return tryCount;
 	}
 }
