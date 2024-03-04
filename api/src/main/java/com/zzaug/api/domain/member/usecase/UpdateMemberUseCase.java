@@ -6,6 +6,7 @@ import com.zzaug.api.domain.member.data.entity.member.AuthenticationEntity;
 import com.zzaug.api.domain.member.data.entity.member.CertificationData;
 import com.zzaug.api.domain.member.dto.UpdateMemberUseCaseRequest;
 import com.zzaug.api.domain.member.dto.UpdateMemberUseCaseResponse;
+import com.zzaug.api.domain.member.exception.strategy.IllegalMemberRequestStrategyException;
 import com.zzaug.api.domain.member.external.security.token.RoleUserAuthToken;
 import com.zzaug.api.domain.member.external.security.token.RoleUserAuthTokenGenerator;
 import com.zzaug.api.domain.member.model.member.MemberAuthentication;
@@ -44,8 +45,7 @@ public class UpdateMemberUseCase {
 		Optional<AuthenticationEntity> authenticationSource =
 				authenticationDao.findByMemberIdAndDeletedFalse(memberSource.getId());
 		if (authenticationSource.isEmpty()) {
-			// todo refactor: 서버, 프론트간 비정상적인 요청 예외로 처리
-			throw new IllegalArgumentException();
+			throw new IllegalMemberRequestStrategyException();
 		}
 		MemberAuthentication memberAuthentication =
 				MemberAuthenticationConverter.from(authenticationSource.get());

@@ -10,6 +10,9 @@ import com.zzaug.api.domain.member.data.entity.history.EmailAuthHistoryEntity;
 import com.zzaug.api.domain.member.dto.CheckEmailAuthUseCaseRequest;
 import com.zzaug.api.domain.member.dto.CheckEmailAuthUseCaseResponse;
 import com.zzaug.api.domain.member.dto.SuccessCheckEmailAuthUseCaseResponse;
+import com.zzaug.api.domain.member.exception.argument.NotMatchEmailAuthException;
+import com.zzaug.api.domain.member.exception.strategy.IllegalMemberRequestStrategyException;
+import com.zzaug.api.domain.member.exception.strategy.IllegalNonceRequestStrategyException;
 import com.zzaug.api.domain.member.external.security.token.RoleUserAuthToken;
 import com.zzaug.api.domain.member.external.security.token.RoleUserAuthTokenGenerator;
 import com.zzaug.api.domain.member.model.auth.EmailAuthResult;
@@ -56,13 +59,11 @@ public class CheckEmailAuthUseCase {
 
 		// 이메일 인증 확인 요청한 멤버와 해당 API를 요청한 멤버가 일치하는지 확인
 		if (!emailAuth.isMemberId(memberSource.getId())) {
-			// todo refactor: 서버, 프론트간 비정상적인 요청 예외로 처리
-			throw new IllegalArgumentException();
+			throw new IllegalMemberRequestStrategyException();
 		}
 		// 이메일 인증 요청시 발급한 nonce와 요청한 nonce가 일치하는지 확인
 		if (!emailAuth.isNonce(nonce)) {
-			// todo refactor: 서버, 프론트간 비정상적인 요청 예외로 처리
-			throw new IllegalArgumentException();
+			throw new IllegalNonceRequestStrategyException();
 		}
 
 		// 이메일 인증을 시도한 횟수를 조회
@@ -107,7 +108,7 @@ public class CheckEmailAuthUseCase {
 				emailAuthDao.findByMemberIdAndEmailAndNonceAndDeletedFalse(
 						memberSource.getId(), email, nonce);
 		if (emailAuthSource.isEmpty()) {
-			throw new IllegalArgumentException();
+			throw new NotMatchEmailAuthException();
 		}
 		return EmailAuthSourceConverter.from(emailAuthSource.get());
 	}

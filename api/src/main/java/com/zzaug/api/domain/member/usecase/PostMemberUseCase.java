@@ -8,6 +8,7 @@ import com.zzaug.api.domain.member.data.entity.member.MemberEntity;
 import com.zzaug.api.domain.member.data.entity.member.PasswordData;
 import com.zzaug.api.domain.member.dto.PostMemberUseCaseRequest;
 import com.zzaug.api.domain.member.dto.PostMemberUseCaseResponse;
+import com.zzaug.api.domain.member.exception.state.DuplicateCertificationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -34,7 +35,7 @@ public class PostMemberUseCase {
 		boolean isDuplicateCertification =
 				authenticationDao.existsByCertificationAndDeletedFalse(certification);
 		if (isDuplicateCertification) {
-			throw new IllegalArgumentException();
+			throw new DuplicateCertificationException();
 		}
 
 		// 비밀번호 암호화
