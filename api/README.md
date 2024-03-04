@@ -74,6 +74,13 @@ config 패키지의 클래스를 통해 API 서버에서 어떠한 설정을 하
 - `usecase`: 특정 도메인에서 사용하는 유즈케이스 클래스를 정의하기 위한 패키지
 - `util`: 특정 도메인에서 사용하는 유틸리티 클래스를 정의하기 위한 패키지
 
+##### domain/xxx/config
+
+대부분의 빈은 `@Component` 어노테이션을 사용하여 정의합니다.
+
+`domain/xxx/config`에서 정의해야하는 빈은 `@Profile`을 통해 `usecase-test`를 제외한 특정 프로필에서만 사용하는 빈을 정의해야하는 경우
+사용합니다.
+
 ##### domain/xxx/dao
 
 `domain/xxx/data`에서 정의한 엔티티를 사용하기 위한 DAO 클래스를 정의하기 위한 패키지입니다.
