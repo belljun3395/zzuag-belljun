@@ -18,6 +18,7 @@ import org.springframework.lang.Nullable;
 public class TryCountElement {
 
 	private static final int NEW_STATE_TRY_COUNT = 0;
+	private static final int MAX_TRY_COUNT = 3;
 
 	@Builder.Default private int tryCount = NEW_STATE_TRY_COUNT;
 	@Nullable private Long emailAuthLogId;
@@ -36,6 +37,15 @@ public class TryCountElement {
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * 시도 횟수가 최대 시도 횟수를 초과했는지 확인합니다.
+	 *
+	 * @return 시도 횟수가 최대 시도 횟수를 초과했는지 여부
+	 */
+	public boolean isOver() {
+		return tryCount >= MAX_TRY_COUNT;
 	}
 
 	/** 시도 횟수를 증가시킵니다. */
