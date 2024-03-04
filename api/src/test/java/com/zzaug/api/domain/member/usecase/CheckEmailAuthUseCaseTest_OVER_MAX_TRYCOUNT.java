@@ -6,10 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import com.zzaug.api.ApiApp;
 import com.zzaug.api.domain.member.dto.CheckEmailAuthUseCaseRequest;
 import com.zzaug.api.domain.member.dto.CheckEmailAuthUseCaseResponse;
-import com.zzaug.api.domain.member.usecase.config.mock.repository.UMockEmailAutHistoryDao;
 import com.zzaug.api.domain.member.usecase.config.mock.repository.UMockEmailAuthDao;
 import com.zzaug.api.domain.member.usecase.config.mock.repository.UMockExternalContactDao;
+import com.zzaug.api.domain.member.usecase.config.mock.service.UMcokGetEmailAuthCheckTryCountService;
 import com.zzaug.api.domain.member.usecase.config.mock.service.UMockGetMemberSourceQuery;
+import com.zzaug.api.domain.member.usecase.config.mock.service.UMockSaveEmailAuthHistoryCommand;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +24,9 @@ import org.springframework.test.context.ActiveProfiles;
 			ApiApp.class,
 			UMockExternalContactDao.class,
 			UMockEmailAuthDao.class,
-			UMockEmailAutHistoryDao.class,
-			UMockGetMemberSourceQuery.class
+			UMockGetMemberSourceQuery.class,
+			UMcokGetEmailAuthCheckTryCountService.class,
+			UMockSaveEmailAuthHistoryCommand.class,
 		})
 class CheckEmailAuthUseCaseTest_OVER_MAX_TRYCOUNT extends AbstractUseCaseTest {
 
@@ -61,6 +63,8 @@ class CheckEmailAuthUseCaseTest_OVER_MAX_TRYCOUNT extends AbstractUseCaseTest {
 		// Then
 		org.junit.jupiter.api.Assertions.assertAll(
 				() -> assertFalse(response.getAuthentication()),
-				() -> assertThat(response.getTryCount()).isEqualTo(UMockEmailAutHistoryDao.MAX_TRY_COUNT));
+				() ->
+						assertThat(response.getTryCount())
+								.isEqualTo(UMcokGetEmailAuthCheckTryCountService.MAX_TRY_COUNT));
 	}
 }
