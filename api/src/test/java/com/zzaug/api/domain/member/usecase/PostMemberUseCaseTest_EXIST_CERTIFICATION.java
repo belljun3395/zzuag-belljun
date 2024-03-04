@@ -2,6 +2,7 @@ package com.zzaug.api.domain.member.usecase;
 
 import com.zzaug.api.ApiApp;
 import com.zzaug.api.domain.member.dto.PostMemberUseCaseRequest;
+import com.zzaug.api.domain.member.exception.state.DuplicateCertificationException;
 import com.zzaug.api.domain.member.usecase.config.mock.repository.UMockAuthenticationDao;
 import com.zzaug.api.domain.member.usecase.config.mock.repository.UMockMemberSourceDao;
 import org.assertj.core.api.Assertions;
@@ -25,6 +26,6 @@ class PostMemberUseCaseTest_EXIST_CERTIFICATION extends AbstractUseCaseTest {
 						.build();
 
 		Assertions.assertThatThrownBy(() -> postMemberUseCase.execute(request))
-				.isInstanceOf(IllegalArgumentException.class);
+				.isInstanceOf(DuplicateCertificationException.class);
 	}
 }
