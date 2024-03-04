@@ -4,7 +4,6 @@ import static com.zzaug.api.domain.member.model.auth.EmailAuthResult.NOT_MATCH_C
 import static com.zzaug.api.domain.member.model.auth.EmailAuthResult.SUCCESS;
 
 import com.zzaug.api.domain.member.dao.auth.EmailAuthDao;
-import com.zzaug.api.domain.member.dao.history.EmailAutHistoryDao;
 import com.zzaug.api.domain.member.data.entity.auth.EmailAuthEntity;
 import com.zzaug.api.domain.member.data.entity.auth.EmailData;
 import com.zzaug.api.domain.member.data.entity.history.EmailAuthHistoryEntity;
@@ -17,6 +16,7 @@ import com.zzaug.api.domain.member.model.auth.EmailAuthResult;
 import com.zzaug.api.domain.member.model.auth.EmailAuthSource;
 import com.zzaug.api.domain.member.model.auth.TryCountElement;
 import com.zzaug.api.domain.member.model.member.MemberSource;
+import com.zzaug.api.domain.member.service.history.GetEmailAuthCheckTryCountService;
 import com.zzaug.api.domain.member.service.history.SaveEmailAuthHistoryCommand;
 import com.zzaug.api.domain.member.service.member.GetMemberSourceQuery;
 import com.zzaug.api.domain.member.util.entity.EmailAuthSourceConverter;
@@ -31,14 +31,13 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CheckEmailAuthUseCase {
 
-	private static final int MAX_TRY_COUNT = 3;
-
 	private final EmailAuthDao emailAuthDao;
-	private final EmailAutHistoryDao emailAutHistoryDao;
 
 	private final GetMemberSourceQuery getMemberSourceQuery;
 
 	private final SaveEmailAuthHistoryCommand saveEmailAuthHistoryCommand;
+
+	private final GetEmailAuthCheckTryCountService getEmailAuthCheckTryCountService;
 
 	// security
 	private final RoleUserAuthTokenGenerator roleUserAuthTokenGenerator;
@@ -67,18 +66,13 @@ public class CheckEmailAuthUseCase {
 		}
 
 		// 이메일 인증을 시도한 횟수를 조회
-		TryCountElement tryCount = null;
-		try {
-			tryCount = getTryCount(memberId, emailAuthId);
-			// todo refactor: 예외를 던지지 않는 방식으로 변경
-		} catch (IllegalStateException e) {
+		TryCountElement tryCount = getEmailAuthCheckTryCountService.execute(memberId, emailAuthId);
+		if (tryCount.isOver()) {
 			return CheckEmailAuthUseCaseResponse.builder()
 					.authentication(false)
-					.tryCount(Long.valueOf(MAX_TRY_COUNT))
+					.tryCount((long) tryCount.getTryCount())
 					.build();
 		}
-		// todo refactor: Objects.requireNonNull을 사용하여 null 체크를 하도록 변경
-		assert tryCount != null;
 
 		// 이메일 인증 요청시 발급한 code와 요청한 code가 일치하는지 확인
 		if (!emailAuth.isCode(code)) {
@@ -116,29 +110,6 @@ public class CheckEmailAuthUseCase {
 			throw new IllegalArgumentException();
 		}
 		return EmailAuthSourceConverter.from(emailAuthSource.get());
-	}
-
-	private TryCountElement getTryCount(Long memberId, Long emailAuthId) {
-		// 이메일 인증을 실패한 이력이 있는지 조회
-		Optional<EmailAuthHistoryEntity> emailAuthLogSource =
-				emailAutHistoryDao.findByMemberIdAndEmailAuthIdAndReasonNotAndDeletedFalse(
-						memberId, emailAuthId, SUCCESS.getReason());
-		int tryCount;
-		if (emailAuthLogSource.isEmpty()) {
-			// 이메일 인증을 실패한 이력이 없는 경우 tryCount를 0으로 초기화
-			tryCount = 0;
-			return TryCountElement.builder().tryCount(tryCount).build();
-		} else {
-			// 이메일 인증을 실패한 이력이 있는 경우 tryCount를 조회하여 초기화
-			tryCount = Math.toIntExact(emailAuthLogSource.get().getTryCount());
-			if (tryCount >= MAX_TRY_COUNT) {
-				throw new IllegalStateException();
-			}
-			return TryCountElement.builder()
-					.tryCount(tryCount)
-					.emailAuthLogId(emailAuthLogSource.get().getId())
-					.build();
-		}
 	}
 
 	private TryCountElement calculateTryCount(EmailAuthResult result, TryCountElement tryCount) {
