@@ -34,8 +34,7 @@ public class SearchMemberUseCase {
 		Optional<AuthenticationEntity> authenticationSource =
 				authenticationDao.findByCertificationAndDeletedFalse(certification);
 		if (authenticationSource.isEmpty()) {
-			// todo fix: EMPTY STRING으로 채워진 객체 반환하도록 수정
-			throw new IllegalArgumentException();
+			return SearchMemberUseCaseResponse.notExistSearchTarget();
 		}
 		GetMemberId memberAuthentication =
 				MemberAuthenticationConverter.from(authenticationSource.get());
