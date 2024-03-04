@@ -40,20 +40,24 @@ public class UpdateMemberUseCase {
 
 		MemberSource memberSource = getMemberSourceQuery.execute(memberId);
 
+		// 멤버 Id를 기준으로 인증 정보 조회
 		Optional<AuthenticationEntity> authenticationSource =
 				authenticationDao.findByMemberIdAndDeletedFalse(memberSource.getId());
 		if (authenticationSource.isEmpty()) {
+			// todo refactor: 서버, 프론트간 비정상적인 요청 예외로 처리
 			throw new IllegalArgumentException();
 		}
 		MemberAuthentication memberAuthentication =
 				MemberAuthenticationConverter.from(authenticationSource.get());
 
+		// 비밀번호 일치 여부 확인
 		if (!memberAuthentication.isMatchPassword(passwordEncoder, password)) {
 			throw new IllegalArgumentException();
 		}
 
+		// 인증 정보 업데이트
 		if (!memberAuthentication.isSameCertification(certification.getCertification())) {
-			// todo false이면 certification을 기준으로 락을 걸어 처리 해야 함
+			// todo false이면 Certification을 기준으로 락을 걸어 처리 해야 함
 			boolean isDuplicateId = authenticationDao.existsByCertificationAndDeletedFalse(certification);
 			if (isDuplicateId) {
 				throw new IllegalArgumentException();
@@ -61,6 +65,7 @@ public class UpdateMemberUseCase {
 			memberAuthentication.updateCertification(certification.getCertification());
 		}
 
+		// 멤버의 정보가 수정되었기에 새로운 토큰을 발급
 		RoleUserAuthToken authToken = roleUserAuthTokenGenerator.generateToken(memberSource.getId());
 
 		return UpdateMemberUseCaseResponse.builder()

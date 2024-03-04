@@ -29,10 +29,12 @@ public class GetMemberUseCase {
 
 		MemberSource source = getMemberSourceQuery.execute(queryMemberId);
 
+		// 멤버의 외부 연락처 정보 조회
 		List<ExternalContactEntity> contacts =
 				externalContactDao.findAllByMemberIdAndDeletedFalse(source.getId());
 		MemberContacts memberContacts = MemberContactExtractor.execute(contacts);
 
+		// todo refactor: Certification도 포함될 수 있도록 수정
 		return GetMemberUseCaseResponse.builder()
 				.id(source.getId())
 				.email(memberContacts.getEmail())

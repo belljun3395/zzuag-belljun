@@ -33,6 +33,7 @@ public class LoginUseCase {
 				CertificationData.builder().certification(request.getCertification()).build();
 		final PasswordData password = PasswordData.builder().password(request.getPassword()).build();
 
+		// Certification을 통해 인증 정보 조회
 		Optional<AuthenticationEntity> authenticationSource =
 				authenticationDao.findByCertificationAndDeletedFalse(certification);
 		if (authenticationSource.isEmpty()) {
@@ -41,10 +42,12 @@ public class LoginUseCase {
 		MemberAuthentication memberAuthentication =
 				MemberAuthenticationConverter.from(authenticationSource.get());
 
+		// 비밀번호 일치 여부 확인
 		if (!memberAuthentication.isMatchPassword(passwordEncoder, password.getPassword())) {
 			throw new IllegalArgumentException();
 		}
 
+		// 인증 토큰 생성
 		RoleUserAuthToken authToken =
 				roleUserAuthTokenGenerator.generateToken(memberAuthentication.getMemberId());
 

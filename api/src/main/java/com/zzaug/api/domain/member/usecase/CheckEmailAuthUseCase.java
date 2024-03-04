@@ -55,12 +55,14 @@ public class CheckEmailAuthUseCase {
 		EmailAuthSource emailAuth = getEmailAuth(memberSource, email, nonce);
 		final Long emailAuthId = emailAuth.getId();
 
-		// 이메일 인증 요청한 멤버와 요청한 멤버가 일치하는지 확인
+		// 이메일 인증 확인 요청한 멤버와 해당 API를 요청한 멤버가 일치하는지 확인
 		if (!emailAuth.isMemberId(memberSource.getId())) {
+			// todo refactor: 서버, 프론트간 비정상적인 요청 예외로 처리
 			throw new IllegalArgumentException();
 		}
 		// 이메일 인증 요청시 발급한 nonce와 요청한 nonce가 일치하는지 확인
 		if (!emailAuth.isNonce(nonce)) {
+			// todo refactor: 서버, 프론트간 비정상적인 요청 예외로 처리
 			throw new IllegalArgumentException();
 		}
 
@@ -68,12 +70,14 @@ public class CheckEmailAuthUseCase {
 		TryCountElement tryCount = null;
 		try {
 			tryCount = getTryCount(memberId, emailAuthId);
+			// todo refactor: 예외를 던지지 않는 방식으로 변경
 		} catch (IllegalStateException e) {
 			return CheckEmailAuthUseCaseResponse.builder()
 					.authentication(false)
 					.tryCount(Long.valueOf(MAX_TRY_COUNT))
 					.build();
 		}
+		// todo refactor: Objects.requireNonNull을 사용하여 null 체크를 하도록 변경
 		assert tryCount != null;
 
 		// 이메일 인증 요청시 발급한 code와 요청한 code가 일치하는지 확인
@@ -93,6 +97,7 @@ public class CheckEmailAuthUseCase {
 		EmailAuthHistoryEntity emailAuthHistoryEntity =
 				saveEmailAuthHistoryCommand.execute(tryCount, memberId, emailAuthId, SUCCESS.getReason());
 
+		// 멤버의 정보가 수정되었기에 새로운 토큰을 발급
 		RoleUserAuthToken authToken = roleUserAuthTokenGenerator.generateToken(memberSource.getId());
 
 		return SuccessCheckEmailAuthUseCaseResponse.builder()

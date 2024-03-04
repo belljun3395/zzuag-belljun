@@ -34,6 +34,7 @@ public class SearchMemberUseCase {
 		Optional<AuthenticationEntity> authenticationSource =
 				authenticationDao.findByCertificationAndDeletedFalse(certification);
 		if (authenticationSource.isEmpty()) {
+			// todo fix: EMPTY STRING으로 채워진 객체 반환하도록 수정
 			throw new IllegalArgumentException();
 		}
 		GetMemberId memberAuthentication =
@@ -43,6 +44,7 @@ public class SearchMemberUseCase {
 				externalContactDao.findAllByMemberIdAndDeletedFalse(memberAuthentication.getMemberId());
 		MemberContacts memberContacts = MemberContactExtractor.execute(contacts);
 
+		// todo refactor: Certification도 포함될 수 있도록 수정
 		return SearchMemberUseCaseResponse.builder()
 				.id(memberAuthentication.getMemberId())
 				.email(memberContacts.getEmail())

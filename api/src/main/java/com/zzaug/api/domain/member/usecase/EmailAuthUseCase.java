@@ -35,6 +35,7 @@ public class EmailAuthUseCase {
 		final String authCode = randomAuthCodeGenerator.generate(7);
 		log.debug("AuthCode is generated : {}", authCode);
 
+		// 이미 존재하는 Email인지 확인
 		boolean isEmailExist =
 				externalContactDao.existsByContactTypeAndSourceAndDeletedFalse(
 						ContactType.EMAIL, email.getEmail());
@@ -51,6 +52,7 @@ public class EmailAuthUseCase {
 						.build();
 		emailAuthDao.saveEmailAuth(emailAuthSource);
 
+		// Email 인증 메시지 발송을 위한 이벤트 발행
 		applicationEventPublisher.publishEvent(
 				MemberEmailAuthMessage.builder()
 						.memberId(memberId)

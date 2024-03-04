@@ -25,6 +25,7 @@ public class DeleteMemberUseCase {
 		Optional<MemberEntity> memberSource =
 				memberSourceDao.findByIdAndStatusAndDeletedFalse(memberId, MemberStatus.REGULAR);
 		if (memberSource.isEmpty()) {
+			// todo refactor: 서버, 프론트간 비정상적인 요청 예외로 처리
 			throw new IllegalArgumentException();
 		}
 

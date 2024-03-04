@@ -35,6 +35,7 @@ public class RenewalTokenUseCase {
 		Optional<AuthenticationEntity> authenticationSource =
 				authenticationDao.findByMemberIdAndDeletedFalse(memberId);
 		if (authenticationSource.isEmpty()) {
+			// todo refactor: 서버, 프론트간 비정상적인 요청 예외로 처리
 			throw new IllegalArgumentException();
 		}
 

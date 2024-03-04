@@ -22,6 +22,7 @@ public class CheckCertificationDuplicationUseCase {
 		final CertificationData certificationData =
 				CertificationData.builder().certification(certification.getCertification()).build();
 
+		// 이미 존재하는 Certification인지 확인
 		boolean isDuplicateCertification =
 				authenticationDao.existsByCertificationAndDeletedFalse(certificationData);
 		if (isDuplicateCertification) {

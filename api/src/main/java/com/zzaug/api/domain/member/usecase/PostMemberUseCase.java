@@ -30,14 +30,17 @@ public class PostMemberUseCase {
 				CertificationData.builder().certification(request.getCertification()).build();
 		PasswordData password = PasswordData.builder().password(request.getPassword()).build();
 
-		boolean isDuplicateId = authenticationDao.existsByCertificationAndDeletedFalse(certification);
-		if (isDuplicateId) {
+		// 이미 존재하는 Certification인지 확인
+		boolean isDuplicateCertification =
+				authenticationDao.existsByCertificationAndDeletedFalse(certification);
+		if (isDuplicateCertification) {
 			throw new IllegalArgumentException();
 		}
 
+		// 비밀번호 암호화
 		password = encodePassword(password);
 
-		// todo certification을 기준으로 락을 걸어 처리 해야 함
+		// todo: Certification을 기준으로 락을 걸어 처리 해야 함
 		MemberEntity memberSource = MemberEntity.builder().build();
 		MemberEntity sourceEntity = memberSourceDao.saveSource(memberSource);
 		Long memberId = sourceEntity.getId();
