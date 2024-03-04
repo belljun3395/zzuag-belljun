@@ -2,6 +2,7 @@ package com.zzaug.api.domain.member.usecase;
 
 import com.zzaug.api.ApiApp;
 import com.zzaug.api.domain.member.dto.SearchMemberUseCaseRequest;
+import com.zzaug.api.domain.member.dto.SearchMemberUseCaseResponse;
 import com.zzaug.api.domain.member.usecase.config.mock.repository.UMockAuthenticationDao;
 import com.zzaug.api.domain.member.usecase.config.mock.repository.UMockExternalContactDao;
 import org.assertj.core.api.Assertions;
@@ -24,7 +25,9 @@ class SearchMemberUseCaseTest_NOT_EXIST_CERTIFICATION extends AbstractUseCaseTes
 				SearchMemberUseCaseRequest.builder().certification("notExist").build();
 
 		// When
-		Assertions.assertThatThrownBy(() -> searchMemberUseCase.execute(request))
-				.isInstanceOf(IllegalArgumentException.class);
+		SearchMemberUseCaseResponse response = searchMemberUseCase.execute(request);
+
+		// Then
+		Assertions.assertThat(response).isEqualTo(SearchMemberUseCaseResponse.notExistSearchTarget());
 	}
 }
