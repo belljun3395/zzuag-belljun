@@ -306,6 +306,7 @@ class MemberControllerTest {
 				.thenReturn(
 						SearchMemberUseCaseResponse.builder()
 								.id(1L)
+								.certification("certification")
 								.email("sample@email.com")
 								.github("github")
 								.build());
@@ -339,6 +340,9 @@ class MemberControllerTest {
 																	fieldWithPath("data.id")
 																			.type(JsonFieldType.NUMBER)
 																			.description("멤버 아이디"),
+																	fieldWithPath("data.certification")
+																			.type(JsonFieldType.STRING)
+																			.description("멤버 증명(아이디)"),
 																	fieldWithPath("data.email")
 																			.type(JsonFieldType.STRING)
 																			.description("멤버 이메일"),
