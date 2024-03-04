@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.zzaug.api.domain.member.data.entity.member.MemberEntity;
 import com.zzaug.api.domain.member.data.entity.member.MemberStatus;
 import com.zzaug.api.domain.member.data.persistence.AbstractRepositoryTest;
+import java.util.Comparator;
+import java.util.Objects;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,7 +23,9 @@ class MemberRepositoryTest extends AbstractRepositoryTest {
 		MemberEntity entity = MemberEntity.builder().build();
 		repository.save(entity);
 		memberId = entity.getId();
-		assert memberId != 0L;
+		if (Objects.compare(memberId, 0L, Comparator.naturalOrder()) == 0) {
+			throw new RuntimeException("멤버 아이디가 생성되지 않았습니다.");
+		}
 	}
 
 	@Test
