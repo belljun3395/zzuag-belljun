@@ -17,6 +17,7 @@ import org.apache.logging.log4j.util.Strings;
 public class SearchMemberUseCaseResponse {
 
 	private Long id;
+	private String certification;
 	private String email;
 	private String github;
 
@@ -24,6 +25,7 @@ public class SearchMemberUseCaseResponse {
 	public static SearchMemberUseCaseResponse notExistSearchTarget() {
 		return SearchMemberUseCaseResponse.builder()
 				.id(Long.MIN_VALUE)
+				.certification(Strings.EMPTY)
 				.email(Strings.EMPTY)
 				.github(Strings.EMPTY)
 				.build();
