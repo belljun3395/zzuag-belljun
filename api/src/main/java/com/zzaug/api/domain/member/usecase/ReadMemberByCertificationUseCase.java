@@ -5,7 +5,7 @@ import com.zzaug.api.domain.member.dao.member.ExternalContactDao;
 import com.zzaug.api.domain.member.data.entity.member.AuthenticationEntity;
 import com.zzaug.api.domain.member.data.entity.member.CertificationData;
 import com.zzaug.api.domain.member.data.entity.member.ExternalContactEntity;
-import com.zzaug.api.domain.member.dto.SearchMemberUseCaseRequest;
+import com.zzaug.api.domain.member.dto.ReadMemberByCertificationUseCaseRequest;
 import com.zzaug.api.domain.member.dto.SearchMemberUseCaseResponse;
 import com.zzaug.api.domain.member.model.member.MemberAuthentication;
 import com.zzaug.api.domain.member.model.member.MemberContacts;
@@ -21,13 +21,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SearchMemberUseCase {
+public class ReadMemberByCertificationUseCase {
 
 	private final AuthenticationDao authenticationDao;
 	private final ExternalContactDao externalContactDao;
 
 	@Transactional
-	public SearchMemberUseCaseResponse execute(SearchMemberUseCaseRequest request) {
+	public SearchMemberUseCaseResponse execute(ReadMemberByCertificationUseCaseRequest request) {
+		final Long memberId = request.getMemberId();
 		final CertificationData certification =
 				CertificationData.builder().certification(request.getCertification()).build();
 

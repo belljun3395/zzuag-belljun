@@ -1,17 +1,20 @@
-package com.zzaug.api.web.dto.member;
+package com.zzaug.api.domain.member.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Getter
 @ToString
+@EqualsAndHashCode
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(toBuilder = true)
-public class MemberRequest {
+public class ReadMemberByCertificationUseCaseRequest {
 
-	private String name;
+	private Long memberId;
+	private String certification;
 }
