@@ -30,6 +30,7 @@ import com.zzaug.api.domain.member.usecase.UpdateMemberUseCase;
 import com.zzaug.api.web.controller.config.TestTokenUserDetailsService;
 import com.zzaug.api.web.controller.v1.description.Description;
 import com.zzaug.api.web.controller.v1.description.MemberDescription;
+import com.zzaug.api.web.controller.v1.description.MemberRequestDescription;
 import com.zzaug.api.web.dto.member.LoginRequest;
 import com.zzaug.api.web.dto.member.MemberSaveRequest;
 import com.zzaug.api.web.dto.member.MemberUpdateRequest;
@@ -118,6 +119,7 @@ class MemberControllerTest {
 												.tag(TAG)
 												.requestSchema(Schema.schema("SaveMemberRequest"))
 												.requestHeaders(Description.authHeader(), Description.xZzaugIdHeader())
+												.requestFields(MemberRequestDescription.memberSaveRequest())
 												.responseSchema(Schema.schema("SaveMemberResponse"))
 												.responseFields(Description.success())
 												.build())));
@@ -146,7 +148,8 @@ class MemberControllerTest {
 								resource(
 										ResourceSnippetParameters.builder()
 												.summary("회원가입을 진행합니다.")
-												.description("회원가입시 Certification은 4자 미만은 불가능합니다.")
+												.description(
+														"회원가입을 진행합니다. 다른 API에서의 Certification과 Password에 관한 규칙은 회원가입을 따릅니다.")
 												.tag(TAG)
 												.requestSchema(Schema.schema("SaveMember_400_fail_request"))
 												.requestHeaders(Description.authHeader(), Description.xZzaugIdHeader())
@@ -178,9 +181,11 @@ class MemberControllerTest {
 								resource(
 										ResourceSnippetParameters.builder()
 												.summary("회원가입을 진행합니다.")
-												.description("회원가입시 Certification은 16자 초과는 불가능합니다.")
+												.description(
+														"회원가입을 진행합니다. 다른 API에서의 Certification과 Password에 관한 규칙은 회원가입을 따릅니다.")
 												.tag(TAG)
 												.requestSchema(Schema.schema("SaveMember_400_fail_request"))
+												.requestFields(MemberRequestDescription.memberSaveRequest())
 												.requestHeaders(Description.authHeader(), Description.xZzaugIdHeader())
 												.responseSchema(Schema.schema("SaveMember_400_fail_response"))
 												.responseFields(Description.fail())
@@ -210,10 +215,12 @@ class MemberControllerTest {
 								resource(
 										ResourceSnippetParameters.builder()
 												.summary("회원가입을 진행합니다.")
-												.description("회원가입시 Certification은 영문과 숫자만 가능합니다.")
+												.description(
+														"회원가입을 진행합니다. 다른 API에서의 Certification과 Password에 관한 규칙은 회원가입을 따릅니다.")
 												.tag(TAG)
 												.requestSchema(Schema.schema("SaveMember_400_fail_request"))
 												.requestHeaders(Description.authHeader(), Description.xZzaugIdHeader())
+												.requestFields(MemberRequestDescription.memberSaveRequest())
 												.responseSchema(Schema.schema("SaveMember_400_fail_response"))
 												.responseFields(Description.fail())
 												.build())));
@@ -242,10 +249,12 @@ class MemberControllerTest {
 								resource(
 										ResourceSnippetParameters.builder()
 												.summary("회원가입을 진행합니다.")
-												.description("회원가입시 Password는 8자 미만은 불가능합니다.")
+												.description(
+														"회원가입을 진행합니다. 다른 API에서의 Certification과 Password에 관한 규칙은 회원가입을 따릅니다.")
 												.tag(TAG)
 												.requestSchema(Schema.schema("SaveMember_400_fail_request"))
 												.requestHeaders(Description.authHeader(), Description.xZzaugIdHeader())
+												.requestFields(MemberRequestDescription.memberSaveRequest())
 												.responseSchema(Schema.schema("SaveMember_400_fail_response"))
 												.responseFields(Description.fail())
 												.build())));
@@ -277,10 +286,12 @@ class MemberControllerTest {
 								resource(
 										ResourceSnippetParameters.builder()
 												.summary("회원가입을 진행합니다.")
-												.description("회원가입시 Password는 16자 초과는 불가능합니다.")
+												.description(
+														"회원가입을 진행합니다. 다른 API에서의 Certification과 Password에 관한 규칙은 회원가입을 따릅니다.")
 												.tag(TAG)
 												.requestSchema(Schema.schema("SaveMember_400_fail_request"))
 												.requestHeaders(Description.authHeader(), Description.xZzaugIdHeader())
+												.requestFields(MemberRequestDescription.memberSaveRequest())
 												.responseSchema(Schema.schema("SaveMember_400_fail_response"))
 												.responseFields(Description.fail())
 												.build())));
@@ -309,10 +320,12 @@ class MemberControllerTest {
 								resource(
 										ResourceSnippetParameters.builder()
 												.summary("회원가입을 진행합니다.")
-												.description("회원가입시 Password는 영문, 숫자, 특수문자를 포함해야 합니다.")
+												.description(
+														"회원가입을 진행합니다. 다른 API에서의 Certification과 Password에 관한 규칙은 회원가입을 따릅니다.")
 												.tag(TAG)
 												.requestSchema(Schema.schema("SaveMember_400_fail_request"))
 												.requestHeaders(Description.authHeader(), Description.xZzaugIdHeader())
+												.requestFields(MemberRequestDescription.memberSaveRequest())
 												.responseSchema(Schema.schema("SaveMember_400_fail_response"))
 												.responseFields(Description.fail())
 												.build())));
@@ -353,6 +366,7 @@ class MemberControllerTest {
 												.tag(TAG)
 												.requestSchema(Schema.schema("UpdateMemberRequest"))
 												.requestHeaders(Description.authHeader(), Description.xZzaugIdHeader())
+												.requestFields(MemberRequestDescription.memberUpdateRequest())
 												.responseSchema(Schema.schema("UpdateMemberResponse"))
 												.responseFields(Description.success(MemberDescription.updateMember()))
 												.build())));
@@ -418,6 +432,7 @@ class MemberControllerTest {
 												.tag(TAG)
 												.requestSchema(Schema.schema("LoginMemberRequest"))
 												.requestHeaders(Description.authHeader(), Description.xZzaugIdHeader())
+												.requestFields(MemberRequestDescription.loginRequest())
 												.responseSchema(Schema.schema("LoginMemberResponse"))
 												.responseFields(Description.success(MemberDescription.loginMember()))
 												.responseHeaders(

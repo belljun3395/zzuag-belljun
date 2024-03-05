@@ -22,6 +22,7 @@ import com.zzaug.api.domain.member.usecase.EmailAuthUseCase;
 import com.zzaug.api.web.controller.config.TestTokenUserDetailsService;
 import com.zzaug.api.web.controller.v1.description.Description;
 import com.zzaug.api.web.controller.v1.description.MemberCheckDescription;
+import com.zzaug.api.web.controller.v1.description.MemberCheckRequestDescription;
 import com.zzaug.api.web.dto.member.CheckEmailAuthRequest;
 import java.util.UUID;
 import javax.servlet.http.Cookie;
@@ -169,6 +170,7 @@ class MemberCheckControllerTest {
 												.tag(TAG)
 												.requestSchema(Schema.schema("CheckEmailAuthRequest"))
 												.requestHeaders(Description.authHeader(), Description.xZzaugIdHeader())
+												.requestFields(MemberCheckRequestDescription.checkEmailAuthRequest())
 												.responseSchema(Schema.schema("CheckEmailAuthResponse"))
 												.responseFields(
 														Description.success(MemberCheckDescription.checkEmailAuth()))
