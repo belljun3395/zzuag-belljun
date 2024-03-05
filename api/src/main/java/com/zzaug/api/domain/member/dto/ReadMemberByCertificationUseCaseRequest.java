@@ -6,7 +6,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.springframework.lang.Nullable;
 
 @Getter
 @ToString
@@ -14,8 +13,8 @@ import org.springframework.lang.Nullable;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(toBuilder = true)
-public class SearchMemberUseCaseRequest {
+public class ReadMemberByCertificationUseCaseRequest {
 
 	private Long memberId;
-	@Nullable private String certification;
+	private String certification;
 }

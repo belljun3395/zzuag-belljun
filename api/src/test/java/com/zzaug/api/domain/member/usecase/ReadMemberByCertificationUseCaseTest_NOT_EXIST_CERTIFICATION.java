@@ -1,7 +1,7 @@
 package com.zzaug.api.domain.member.usecase;
 
 import com.zzaug.api.ApiApp;
-import com.zzaug.api.domain.member.dto.SearchMemberUseCaseRequest;
+import com.zzaug.api.domain.member.dto.ReadMemberByCertificationUseCaseRequest;
 import com.zzaug.api.domain.member.dto.SearchMemberUseCaseResponse;
 import com.zzaug.api.domain.member.usecase.config.mock.repository.UMockAuthenticationDao;
 import com.zzaug.api.domain.member.usecase.config.mock.repository.UMockExternalContactDao;
@@ -14,18 +14,18 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("not-exist-certification")
 @SpringBootTest(
 		classes = {ApiApp.class, UMockAuthenticationDao.class, UMockExternalContactDao.class})
-class SearchMemberUseCaseTest_NOT_EXIST_CERTIFICATION extends AbstractUseCaseTest {
+class ReadMemberByCertificationUseCaseTest_NOT_EXIST_CERTIFICATION extends AbstractUseCaseTest {
 
-	@Autowired private SearchMemberUseCase searchMemberUseCase;
+	@Autowired private ReadMemberByCertificationUseCase readMemberByCertificationUseCase;
 
 	@Test
 	void 없는_증명을_통해_회원_검색_요청을_진행합니다() {
 		// Given
-		SearchMemberUseCaseRequest request =
-				SearchMemberUseCaseRequest.builder().certification("notExist").build();
+		ReadMemberByCertificationUseCaseRequest request =
+				ReadMemberByCertificationUseCaseRequest.builder().certification("notExist").build();
 
 		// When
-		SearchMemberUseCaseResponse response = searchMemberUseCase.execute(request);
+		SearchMemberUseCaseResponse response = readMemberByCertificationUseCase.execute(request);
 
 		// Then
 		Assertions.assertThat(response).isEqualTo(SearchMemberUseCaseResponse.notExistSearchTarget());

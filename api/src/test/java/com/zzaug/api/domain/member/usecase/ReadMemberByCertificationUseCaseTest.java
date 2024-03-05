@@ -1,7 +1,7 @@
 package com.zzaug.api.domain.member.usecase;
 
 import com.zzaug.api.ApiApp;
-import com.zzaug.api.domain.member.dto.SearchMemberUseCaseRequest;
+import com.zzaug.api.domain.member.dto.ReadMemberByCertificationUseCaseRequest;
 import com.zzaug.api.domain.member.dto.SearchMemberUseCaseResponse;
 import com.zzaug.api.domain.member.usecase.config.mock.repository.UMockAuthenticationDao;
 import com.zzaug.api.domain.member.usecase.config.mock.repository.UMockExternalContactDao;
@@ -12,20 +12,20 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest(
 		classes = {ApiApp.class, UMockAuthenticationDao.class, UMockExternalContactDao.class})
-class SearchMemberUseCaseTest extends AbstractUseCaseTest {
+class ReadMemberByCertificationUseCaseTest extends AbstractUseCaseTest {
 
-	@Autowired private SearchMemberUseCase searchMemberUseCase;
+	@Autowired private ReadMemberByCertificationUseCase readMemberByCertificationUseCase;
 
 	@Test
 	void 증명을_통해_회원_검색_요청을_진행합니다() {
 		// Given
-		SearchMemberUseCaseRequest request =
-				SearchMemberUseCaseRequest.builder()
+		ReadMemberByCertificationUseCaseRequest request =
+				ReadMemberByCertificationUseCaseRequest.builder()
 						.certification(UMockAuthenticationDao.CERTIFICATION)
 						.build();
 
 		// When
-		SearchMemberUseCaseResponse response = searchMemberUseCase.execute(request);
+		SearchMemberUseCaseResponse response = readMemberByCertificationUseCase.execute(request);
 
 		// Then
 		org.junit.jupiter.api.Assertions.assertAll(
