@@ -16,6 +16,7 @@ import lombok.ToString;
 public class GetMemberUseCaseResponse {
 
 	private Long id;
+	private String certification;
 	private String email;
 	private String github;
 }
