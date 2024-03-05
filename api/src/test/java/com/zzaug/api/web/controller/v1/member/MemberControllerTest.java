@@ -24,8 +24,8 @@ import com.zzaug.api.domain.member.usecase.DeleteMemberUseCase;
 import com.zzaug.api.domain.member.usecase.GetMemberUseCase;
 import com.zzaug.api.domain.member.usecase.LoginUseCase;
 import com.zzaug.api.domain.member.usecase.PostMemberUseCase;
+import com.zzaug.api.domain.member.usecase.ReadMemberByCertificationUseCase;
 import com.zzaug.api.domain.member.usecase.RenewalTokenUseCase;
-import com.zzaug.api.domain.member.usecase.SearchMemberUseCase;
 import com.zzaug.api.domain.member.usecase.UpdateMemberUseCase;
 import com.zzaug.api.web.controller.config.TestTokenUserDetailsService;
 import com.zzaug.api.web.controller.v1.description.Description;
@@ -35,6 +35,7 @@ import com.zzaug.api.web.dto.member.MemberSaveRequest;
 import com.zzaug.api.web.dto.member.MemberUpdateRequest;
 import java.util.UUID;
 import javax.servlet.http.Cookie;
+import org.apache.logging.log4j.util.Strings;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +65,7 @@ class MemberControllerTest {
 	@MockBean DeleteMemberUseCase deleteMemberUseCase;
 	@MockBean LoginUseCase loginUseCase;
 	@MockBean RenewalTokenUseCase renewalTokenUseCase;
-	@MockBean SearchMemberUseCase searchMemberUseCase;
+	@MockBean ReadMemberByCertificationUseCase readMemberByCertificationUseCase;
 
 	@Value("${token.test}")
 	private String testToken;
@@ -78,7 +79,7 @@ class MemberControllerTest {
 	private static final String DELETE_BASE_URL_DNAME = "[DELETE] " + BASE_URL;
 
 	private static final String X_ZZAUG_ID = "X-ZZAUG-ID";
-	private static final String CERTIFICATION = "certification";
+	private static final String CERTIFICATION = "certification12";
 	private static final String PASSWORD = "password@123";
 
 	@Test
@@ -111,12 +112,209 @@ class MemberControllerTest {
 								"SaveMember",
 								resource(
 										ResourceSnippetParameters.builder()
-												.description("회원가입을 진행합니다.")
+												.summary("회원가입을 진행합니다.")
+												.description(
+														"회원가입을 진행합니다. 다른 API에서의 Certification과 Password에 관한 규칙은 회원가입을 따릅니다.")
 												.tag(TAG)
 												.requestSchema(Schema.schema("SaveMemberRequest"))
 												.requestHeaders(Description.authHeader(), Description.xZzaugIdHeader())
 												.responseSchema(Schema.schema("SaveMemberResponse"))
 												.responseFields(Description.success())
+												.build())));
+	}
+
+	@Test
+	@DisplayName(POST_BASE_URL_DNAME)
+	@WithUserDetails(userDetailsServiceBeanName = "testTokenUserDetailsService")
+	void save_certification_under_min_length() throws Exception {
+		// set service mock
+		MemberSaveRequest request =
+				MemberSaveRequest.builder().certification("ab1").password(PASSWORD).build();
+		String content = objectMapper.writeValueAsString(request);
+
+		mockMvc
+				.perform(
+						post(BASE_URL, 0)
+								.contentType(MediaType.APPLICATION_JSON)
+								.content(content)
+								.header(X_ZZAUG_ID, UUID.randomUUID())
+								.header(HttpHeaders.AUTHORIZATION, "Bearer accessToken"))
+				.andExpect(status().is4xxClientError())
+				.andDo(
+						document(
+								"SaveMember_certification_under_min_length",
+								resource(
+										ResourceSnippetParameters.builder()
+												.summary("회원가입을 진행합니다.")
+												.description("회원가입시 Certification은 4자 미만은 불가능합니다.")
+												.tag(TAG)
+												.requestSchema(Schema.schema("SaveMember_400_fail_request"))
+												.requestHeaders(Description.authHeader(), Description.xZzaugIdHeader())
+												.responseSchema(Schema.schema("SaveMember_400_fail_response"))
+												.responseFields(Description.fail())
+												.build())));
+	}
+
+	@Test
+	@DisplayName(POST_BASE_URL_DNAME)
+	@WithUserDetails(userDetailsServiceBeanName = "testTokenUserDetailsService")
+	void save_certification_over_max_length() throws Exception {
+		// set service mock
+		MemberSaveRequest request =
+				MemberSaveRequest.builder().certification("abcdefgh123456789").password(PASSWORD).build();
+		String content = objectMapper.writeValueAsString(request);
+
+		mockMvc
+				.perform(
+						post(BASE_URL, 0)
+								.contentType(MediaType.APPLICATION_JSON)
+								.content(content)
+								.header(X_ZZAUG_ID, UUID.randomUUID())
+								.header(HttpHeaders.AUTHORIZATION, "Bearer accessToken"))
+				.andExpect(status().is4xxClientError())
+				.andDo(
+						document(
+								"SaveMember_certification_over_max_length",
+								resource(
+										ResourceSnippetParameters.builder()
+												.summary("회원가입을 진행합니다.")
+												.description("회원가입시 Certification은 16자 초과는 불가능합니다.")
+												.tag(TAG)
+												.requestSchema(Schema.schema("SaveMember_400_fail_request"))
+												.requestHeaders(Description.authHeader(), Description.xZzaugIdHeader())
+												.responseSchema(Schema.schema("SaveMember_400_fail_response"))
+												.responseFields(Description.fail())
+												.build())));
+	}
+
+	@Test
+	@DisplayName(POST_BASE_URL_DNAME)
+	@WithUserDetails(userDetailsServiceBeanName = "testTokenUserDetailsService")
+	void save_certification_is_english_and_number_only() throws Exception {
+		// set service mock
+		MemberSaveRequest request =
+				MemberSaveRequest.builder().certification("certification@123").password(PASSWORD).build();
+		String content = objectMapper.writeValueAsString(request);
+
+		mockMvc
+				.perform(
+						post(BASE_URL, 0)
+								.contentType(MediaType.APPLICATION_JSON)
+								.content(content)
+								.header(X_ZZAUG_ID, UUID.randomUUID())
+								.header(HttpHeaders.AUTHORIZATION, "Bearer accessToken"))
+				.andExpect(status().is4xxClientError())
+				.andDo(
+						document(
+								"SaveMember_certification_is_english_and_number_only",
+								resource(
+										ResourceSnippetParameters.builder()
+												.summary("회원가입을 진행합니다.")
+												.description("회원가입시 Certification은 영문과 숫자만 가능합니다.")
+												.tag(TAG)
+												.requestSchema(Schema.schema("SaveMember_400_fail_request"))
+												.requestHeaders(Description.authHeader(), Description.xZzaugIdHeader())
+												.responseSchema(Schema.schema("SaveMember_400_fail_response"))
+												.responseFields(Description.fail())
+												.build())));
+	}
+
+	@Test
+	@DisplayName(POST_BASE_URL_DNAME)
+	@WithUserDetails(userDetailsServiceBeanName = "testTokenUserDetailsService")
+	void save_password_under_min_length() throws Exception {
+		// set service mock
+		MemberSaveRequest request =
+				MemberSaveRequest.builder().certification(CERTIFICATION).password("abc@123").build();
+		String content = objectMapper.writeValueAsString(request);
+
+		mockMvc
+				.perform(
+						post(BASE_URL, 0)
+								.contentType(MediaType.APPLICATION_JSON)
+								.content(content)
+								.header(X_ZZAUG_ID, UUID.randomUUID())
+								.header(HttpHeaders.AUTHORIZATION, "Bearer accessToken"))
+				.andExpect(status().is4xxClientError())
+				.andDo(
+						document(
+								"SaveMember_password_under_min_length",
+								resource(
+										ResourceSnippetParameters.builder()
+												.summary("회원가입을 진행합니다.")
+												.description("회원가입시 Password는 8자 미만은 불가능합니다.")
+												.tag(TAG)
+												.requestSchema(Schema.schema("SaveMember_400_fail_request"))
+												.requestHeaders(Description.authHeader(), Description.xZzaugIdHeader())
+												.responseSchema(Schema.schema("SaveMember_400_fail_response"))
+												.responseFields(Description.fail())
+												.build())));
+	}
+
+	@Test
+	@DisplayName(POST_BASE_URL_DNAME)
+	@WithUserDetails(userDetailsServiceBeanName = "testTokenUserDetailsService")
+	void save_password_over_max_length() throws Exception {
+		// set service mock
+		MemberSaveRequest request =
+				MemberSaveRequest.builder()
+						.certification(CERTIFICATION)
+						.password("abcdefg@123456789")
+						.build();
+		String content = objectMapper.writeValueAsString(request);
+
+		mockMvc
+				.perform(
+						post(BASE_URL, 0)
+								.contentType(MediaType.APPLICATION_JSON)
+								.content(content)
+								.header(X_ZZAUG_ID, UUID.randomUUID())
+								.header(HttpHeaders.AUTHORIZATION, "Bearer accessToken"))
+				.andExpect(status().is4xxClientError())
+				.andDo(
+						document(
+								"SaveMember_password_over_max_length",
+								resource(
+										ResourceSnippetParameters.builder()
+												.summary("회원가입을 진행합니다.")
+												.description("회원가입시 Password는 16자 초과는 불가능합니다.")
+												.tag(TAG)
+												.requestSchema(Schema.schema("SaveMember_400_fail_request"))
+												.requestHeaders(Description.authHeader(), Description.xZzaugIdHeader())
+												.responseSchema(Schema.schema("SaveMember_400_fail_response"))
+												.responseFields(Description.fail())
+												.build())));
+	}
+
+	@Test
+	@DisplayName(POST_BASE_URL_DNAME)
+	@WithUserDetails(userDetailsServiceBeanName = "testTokenUserDetailsService")
+	void save_password_is_english_and_number_and_special() throws Exception {
+		// set service mock
+		MemberSaveRequest request =
+				MemberSaveRequest.builder().certification(CERTIFICATION).password("password123").build();
+		String content = objectMapper.writeValueAsString(request);
+
+		mockMvc
+				.perform(
+						post(BASE_URL, 0)
+								.contentType(MediaType.APPLICATION_JSON)
+								.content(content)
+								.header(X_ZZAUG_ID, UUID.randomUUID())
+								.header(HttpHeaders.AUTHORIZATION, "Bearer accessToken"))
+				.andExpect(status().is4xxClientError())
+				.andDo(
+						document(
+								"SaveMember_password_over_max_length",
+								resource(
+										ResourceSnippetParameters.builder()
+												.summary("회원가입을 진행합니다.")
+												.description("회원가입시 Password는 영문, 숫자, 특수문자를 포함해야 합니다.")
+												.tag(TAG)
+												.requestSchema(Schema.schema("SaveMember_400_fail_request"))
+												.requestHeaders(Description.authHeader(), Description.xZzaugIdHeader())
+												.responseSchema(Schema.schema("SaveMember_400_fail_response"))
+												.responseFields(Description.fail())
 												.build())));
 	}
 
@@ -264,11 +462,11 @@ class MemberControllerTest {
 	}
 
 	@Test
-	@DisplayName(GET_BASE_URL_DNAME)
+	@DisplayName(GET_BASE_URL_DNAME + "/certification/{certification}")
 	@WithUserDetails(userDetailsServiceBeanName = "testTokenUserDetailsService")
-	void search() throws Exception {
+	void readByCertification() throws Exception {
 		// set service mock
-		when(searchMemberUseCase.execute(any()))
+		when(readMemberByCertificationUseCase.execute(any()))
 				.thenReturn(
 						SearchMemberUseCaseResponse.builder()
 								.id(1L)
@@ -279,24 +477,62 @@ class MemberControllerTest {
 
 		mockMvc
 				.perform(
-						get(BASE_URL, 0)
+						get(BASE_URL + "/certification/{certification}", CERTIFICATION)
 								.contentType(MediaType.APPLICATION_JSON)
-								.queryParam("certification", CERTIFICATION)
 								.header(X_ZZAUG_ID, UUID.randomUUID())
 								.header(HttpHeaders.AUTHORIZATION, "Bearer accessToken"))
 				.andExpect(status().is2xxSuccessful())
 				.andDo(
 						document(
-								"SearchMember",
+								"ReadByCertificationMember",
 								resource(
 										ResourceSnippetParameters.builder()
 												.description("증명(아이디)를 조회합니다.")
 												.requestParameters(
 														parameterWithName("certification").description("증명(아이디)").optional())
 												.tag(TAG)
-												.requestSchema(Schema.schema("SearchMemberRequest"))
+												.requestSchema(Schema.schema("ReadByCertificationMemberRequest"))
 												.requestHeaders(Description.authHeader(), Description.xZzaugIdHeader())
-												.responseSchema(Schema.schema("SearchMemberResponse"))
+												.responseSchema(Schema.schema("ReadByCertificationMemberResponse"))
+												.responseFields(Description.success(MemberDescription.searchMember()))
+												.build())));
+	}
+
+	@Test
+	@DisplayName(GET_BASE_URL_DNAME)
+	@WithUserDetails(userDetailsServiceBeanName = "testTokenUserDetailsService")
+	void readByCertification_not_exist_target() throws Exception {
+		// set service mock
+		when(readMemberByCertificationUseCase.execute(any()))
+				.thenReturn(
+						SearchMemberUseCaseResponse.builder()
+								.id(Long.MIN_VALUE)
+								.certification(Strings.EMPTY)
+								.email(Strings.EMPTY)
+								.github(Strings.EMPTY)
+								.build());
+
+		mockMvc
+				.perform(
+						get(BASE_URL + "/certification/{certification}", "notExistCertification")
+								.contentType(MediaType.APPLICATION_JSON)
+								.header(X_ZZAUG_ID, UUID.randomUUID())
+								.header(HttpHeaders.AUTHORIZATION, "Bearer accessToken"))
+				.andExpect(status().is2xxSuccessful())
+				.andDo(
+						document(
+								"ReadByCertificationMember_not_exist_target",
+								resource(
+										ResourceSnippetParameters.builder()
+												.description("존재하지 않는 증명(아이디)를 조회합니다.")
+												.requestParameters(
+														parameterWithName("certification").description("증명(아이디)").optional())
+												.tag(TAG)
+												.requestSchema(
+														Schema.schema("ReadByCertificationMember_not_exist_target_request"))
+												.requestHeaders(Description.authHeader(), Description.xZzaugIdHeader())
+												.responseSchema(
+														Schema.schema("ReadByCertificationMember_not_exist_target_response"))
 												.responseFields(Description.success(MemberDescription.searchMember()))
 												.build())));
 	}
