@@ -3,6 +3,7 @@ package com.zzaug.api.domain.member.service.member;
 import com.zzaug.api.domain.member.dao.member.MemberSourceDao;
 import com.zzaug.api.domain.member.data.entity.member.MemberEntity;
 import com.zzaug.api.domain.member.data.entity.member.MemberStatus;
+import com.zzaug.api.domain.member.exception.argument.NotMatchMemberException;
 import com.zzaug.api.domain.member.model.member.MemberSource;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,7 @@ public class GetRegularMemberSourceQuery implements GetMemberSourceQuery {
 		Optional<MemberEntity> entity =
 				memberRepository.findByIdAndStatusAndDeletedFalse(memberId, MemberStatus.REGULAR);
 		if (entity.isEmpty()) {
-			throw new IllegalArgumentException();
+			throw new NotMatchMemberException();
 		}
 		MemberEntity source = entity.get();
 		return new MemberSource(source.getId());

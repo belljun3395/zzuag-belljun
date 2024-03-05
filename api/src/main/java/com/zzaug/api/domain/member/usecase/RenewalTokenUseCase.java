@@ -4,6 +4,7 @@ import com.zzaug.api.domain.member.dao.member.AuthenticationDao;
 import com.zzaug.api.domain.member.data.entity.member.AuthenticationEntity;
 import com.zzaug.api.domain.member.dto.MemberAuthToken;
 import com.zzaug.api.domain.member.dto.RenewalTokenUseCaseRequest;
+import com.zzaug.api.domain.member.exception.strategy.IllegalMemberRequestStrategyException;
 import com.zzaug.api.domain.member.external.security.token.RoleUserAuthToken;
 import com.zzaug.api.domain.member.external.security.token.RoleUserAuthTokenGenerator;
 import com.zzaug.api.domain.member.model.member.MemberSource;
@@ -35,8 +36,7 @@ public class RenewalTokenUseCase {
 		Optional<AuthenticationEntity> authenticationSource =
 				authenticationDao.findByMemberIdAndDeletedFalse(memberId);
 		if (authenticationSource.isEmpty()) {
-			// todo refactor: 서버, 프론트간 비정상적인 요청 예외로 처리
-			throw new IllegalArgumentException();
+			throw new IllegalMemberRequestStrategyException();
 		}
 
 		RoleUserAuthToken authToken = roleUserAuthTokenGenerator.generateToken(memberSource.getId());

@@ -7,6 +7,8 @@ import com.zzaug.api.domain.member.data.entity.member.CertificationData;
 import com.zzaug.api.domain.member.data.entity.member.PasswordData;
 import com.zzaug.api.domain.member.dto.LoginUseCaseRequest;
 import com.zzaug.api.domain.member.dto.MemberAuthToken;
+import com.zzaug.api.domain.member.exception.argument.NotMatchMemberException;
+import com.zzaug.api.domain.member.exception.argument.NotMatchPasswordException;
 import com.zzaug.api.domain.member.external.security.token.RoleUserAuthToken;
 import com.zzaug.api.domain.member.external.security.token.RoleUserAuthTokenGenerator;
 import com.zzaug.api.domain.member.model.member.MemberAuthentication;
@@ -37,14 +39,14 @@ public class LoginUseCase {
 		Optional<AuthenticationEntity> authenticationSource =
 				authenticationDao.findByCertificationAndDeletedFalse(certification);
 		if (authenticationSource.isEmpty()) {
-			throw new IllegalArgumentException();
+			throw new NotMatchMemberException();
 		}
 		MemberAuthentication memberAuthentication =
 				MemberAuthenticationConverter.from(authenticationSource.get());
 
 		// 비밀번호 일치 여부 확인
 		if (!memberAuthentication.isMatchPassword(passwordEncoder, password.getPassword())) {
-			throw new IllegalArgumentException();
+			throw new NotMatchPasswordException();
 		}
 
 		// 인증 토큰 생성

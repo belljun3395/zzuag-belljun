@@ -6,6 +6,7 @@ import static com.zzaug.api.web.handler.ExceptionMessage.FAIL_NOT_FOUND;
 import static com.zzaug.api.web.handler.ExceptionMessage.FAIL_REQUEST;
 import static com.zzaug.api.web.handler.ExceptionMessage.REQUEST_INVALID_FORMAT;
 
+import com.zzaug.api.domain.member.exception.strategy.IllegalRequestStrategyException;
 import com.zzaug.api.web.support.ApiResponse;
 import com.zzaug.api.web.support.ApiResponse.FailureBody;
 import com.zzaug.api.web.support.ApiResponseGenerator;
@@ -118,6 +119,23 @@ public class ApiControllerExceptionHandler {
 		ValidationException rex = ex;
 		return ApiResponseGenerator.fail(
 				FAIL_REQUEST.getCode(), FAIL_REQUEST.getMessage(), HttpStatus.BAD_REQUEST);
+	}
+
+	@ExceptionHandler(IllegalStateException.class)
+	public ApiResponse<FailureBody> handleIllegalState(
+			final Exception ex, final HttpServletRequest request) {
+		loggingHandler.writeLog(ex, request);
+		return ApiResponseGenerator.fail(
+				FAIL.getCode(), FAIL.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+
+	@ExceptionHandler(IllegalRequestStrategyException.class)
+	public ApiResponse<FailureBody> handleIllegalRequestStrategy(
+			final Exception ex, final HttpServletRequest request) {
+		loggingHandler.writeLog(ex, request);
+		// todo feat: 외부 알림 서비스 연동 기능 추가
+		return ApiResponseGenerator.fail(
+				FAIL.getCode(), FAIL.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	@ExceptionHandler({NoHandlerFoundException.class})
