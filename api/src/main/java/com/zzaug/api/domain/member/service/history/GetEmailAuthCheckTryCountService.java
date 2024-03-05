@@ -1,8 +1,8 @@
 package com.zzaug.api.domain.member.service.history;
 
-import com.zzaug.api.domain.member.model.auth.TryCountElement;
+import com.zzaug.api.domain.member.model.auth.TryCount;
 
 public interface GetEmailAuthCheckTryCountService {
 
-	TryCountElement execute(Long memberId, Long emailAuthId);
+	TryCount execute(Long memberId, Long emailAuthId);
 }

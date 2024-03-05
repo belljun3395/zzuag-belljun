@@ -2,7 +2,8 @@ package com.zzaug.api.domain.member.service.history;
 
 import com.zzaug.api.domain.member.dao.history.EmailAutHistoryDao;
 import com.zzaug.api.domain.member.data.entity.history.EmailAuthHistoryEntity;
-import com.zzaug.api.domain.member.model.auth.TryCountElement;
+import com.zzaug.api.domain.member.model.auth.SavedTryCountElement;
+import com.zzaug.api.domain.member.model.auth.TryCount;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
@@ -20,10 +21,11 @@ public class SaveEmailAuthHistoryCommandImpl implements SaveEmailAuthHistoryComm
 	@Override
 	@Transactional
 	public EmailAuthHistoryEntity execute(
-			TryCountElement tryCount, Long memberId, Long emailAuthId, String reason) {
+			TryCount tryCount, Long memberId, Long emailAuthId, String reason) {
 		if (tryCount.isNew()) {
+			SavedTryCountElement savedTryCountElement = (SavedTryCountElement) tryCount;
 			return save(
-					tryCount.getEmailAuthLogId(),
+					savedTryCountElement.getEmailAuthLogId(),
 					memberId,
 					emailAuthId,
 					reason,

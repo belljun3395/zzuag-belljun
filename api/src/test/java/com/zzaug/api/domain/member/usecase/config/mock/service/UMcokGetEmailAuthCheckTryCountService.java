@@ -1,6 +1,7 @@
 package com.zzaug.api.domain.member.usecase.config.mock.service;
 
-import com.zzaug.api.domain.member.model.auth.TryCountElement;
+import com.zzaug.api.domain.member.model.auth.SavedTryCountElement;
+import com.zzaug.api.domain.member.model.auth.TryCount;
 import com.zzaug.api.domain.member.service.history.GetEmailAuthCheckTryCountService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -39,19 +40,19 @@ public class UMcokGetEmailAuthCheckTryCountService
 	}
 
 	@Override
-	public TryCountElement execute(Long memberId, Long emailAuthId) {
+	public TryCount execute(Long memberId, Long emailAuthId) {
 		if (activeProfiles.contains("under-max-try-count")) {
-			return TryCountElement.builder()
+			return SavedTryCountElement.builder()
 					.tryCount(Math.toIntExact(UNDER_MAX_TRY_COUNT))
 					.emailAuthLogId(EMAIL_AUTH_LOG_ID)
 					.build();
 		}
 		if (activeProfiles.contains("over-max-try-count")) {
-			return TryCountElement.builder()
+			return SavedTryCountElement.builder()
 					.tryCount(Math.toIntExact(MAX_TRY_COUNT))
 					.emailAuthLogId(EMAIL_AUTH_LOG_ID)
 					.build();
 		}
-		return TryCountElement.builder().tryCount(Math.toIntExact(INITIAL_TRY_COUNT)).build();
+		return SavedTryCountElement.builder().tryCount(Math.toIntExact(INITIAL_TRY_COUNT)).build();
 	}
 }
