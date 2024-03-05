@@ -7,8 +7,8 @@ import com.zzaug.api.domain.member.dto.GetMemberUseCaseResponse;
 import com.zzaug.api.domain.member.dto.LoginUseCaseRequest;
 import com.zzaug.api.domain.member.dto.MemberAuthToken;
 import com.zzaug.api.domain.member.dto.PostMemberUseCaseRequest;
+import com.zzaug.api.domain.member.dto.ReadMemberByCertificationUseCaseRequest;
 import com.zzaug.api.domain.member.dto.RenewalTokenUseCaseRequest;
-import com.zzaug.api.domain.member.dto.SearchMemberUseCaseRequest;
 import com.zzaug.api.domain.member.dto.SearchMemberUseCaseResponse;
 import com.zzaug.api.domain.member.dto.UpdateMemberUseCaseRequest;
 import com.zzaug.api.domain.member.dto.UpdateMemberUseCaseResponse;
@@ -16,8 +16,8 @@ import com.zzaug.api.domain.member.usecase.DeleteMemberUseCase;
 import com.zzaug.api.domain.member.usecase.GetMemberUseCase;
 import com.zzaug.api.domain.member.usecase.LoginUseCase;
 import com.zzaug.api.domain.member.usecase.PostMemberUseCase;
+import com.zzaug.api.domain.member.usecase.ReadMemberByCertificationUseCase;
 import com.zzaug.api.domain.member.usecase.RenewalTokenUseCase;
-import com.zzaug.api.domain.member.usecase.SearchMemberUseCase;
 import com.zzaug.api.domain.member.usecase.UpdateMemberUseCase;
 import com.zzaug.api.security.authentication.token.TokenUserDetails;
 import com.zzaug.api.security.token.TokenResolver;
@@ -49,7 +49,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Validated
@@ -70,7 +69,7 @@ public class MemberController {
 	private final DeleteMemberUseCase deleteMemberUseCase;
 	private final LoginUseCase loginUseCase;
 	private final RenewalTokenUseCase renewalTokenUseCase;
-	private final SearchMemberUseCase searchMemberUseCase;
+	private final ReadMemberByCertificationUseCase readMemberByCertificationUseCase;
 
 	@PostMapping()
 	public ApiResponse<ApiResponse.Success> save(@Valid @RequestBody MemberSaveRequest request) {
@@ -135,17 +134,17 @@ public class MemberController {
 		return ApiResponseGenerator.success(response, HttpStatus.OK, MessageCode.SUCCESS);
 	}
 
-	@GetMapping()
-	public ApiResponse<ApiResponse.SuccessBody<SearchMemberUseCaseResponse>> search(
+	@GetMapping("/certification/{certification}")
+	public ApiResponse<ApiResponse.SuccessBody<SearchMemberUseCaseResponse>> readByCertification(
 			@AuthenticationPrincipal TokenUserDetails userDetails,
-			@RequestParam(value = "certification", required = false) String certification) {
+			@PathVariable(value = "certification") String certification) {
 		Long memberId = Long.valueOf(userDetails.getId());
-		SearchMemberUseCaseRequest useCaseRequest =
-				SearchMemberUseCaseRequest.builder()
+		ReadMemberByCertificationUseCaseRequest useCaseRequest =
+				ReadMemberByCertificationUseCaseRequest.builder()
 						.memberId(memberId)
 						.certification(certification)
 						.build();
-		SearchMemberUseCaseResponse response = searchMemberUseCase.execute(useCaseRequest);
+		SearchMemberUseCaseResponse response = readMemberByCertificationUseCase.execute(useCaseRequest);
 		return ApiResponseGenerator.success(response, HttpStatus.OK, MessageCode.SUCCESS);
 	}
 
