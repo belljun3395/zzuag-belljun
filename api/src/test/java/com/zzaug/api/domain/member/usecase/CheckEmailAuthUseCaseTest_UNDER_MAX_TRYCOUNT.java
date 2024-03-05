@@ -6,10 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.zzaug.api.ApiApp;
 import com.zzaug.api.domain.member.dto.CheckEmailAuthUseCaseRequest;
 import com.zzaug.api.domain.member.dto.CheckEmailAuthUseCaseResponse;
-import com.zzaug.api.domain.member.usecase.config.mock.repository.UMockEmailAutHistoryDao;
 import com.zzaug.api.domain.member.usecase.config.mock.repository.UMockEmailAuthDao;
 import com.zzaug.api.domain.member.usecase.config.mock.repository.UMockExternalContactDao;
+import com.zzaug.api.domain.member.usecase.config.mock.service.UMcokGetEmailAuthCheckTryCountService;
 import com.zzaug.api.domain.member.usecase.config.mock.service.UMockGetMemberSourceQuery;
+import com.zzaug.api.domain.member.usecase.config.mock.service.UMockSaveEmailAuthHistoryCommand;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,8 +25,9 @@ import org.springframework.test.context.ActiveProfiles;
 			ApiApp.class,
 			UMockExternalContactDao.class,
 			UMockEmailAuthDao.class,
-			UMockEmailAutHistoryDao.class,
-			UMockGetMemberSourceQuery.class
+			UMockGetMemberSourceQuery.class,
+			UMcokGetEmailAuthCheckTryCountService.class,
+			UMockSaveEmailAuthHistoryCommand.class,
 		})
 class CheckEmailAuthUseCaseTest_UNDER_MAX_TRYCOUNT extends AbstractUseCaseTest {
 
@@ -61,7 +63,7 @@ class CheckEmailAuthUseCaseTest_UNDER_MAX_TRYCOUNT extends AbstractUseCaseTest {
 		// Then
 		assertTrue(response.getAuthentication());
 		Assertions.assertThat(response.getTryCount())
-				.isEqualTo(UMockEmailAutHistoryDao.UNDER_MAX_TRY_COUNT);
+				.isEqualTo(UMcokGetEmailAuthCheckTryCountService.UNDER_MAX_TRY_COUNT);
 	}
 
 	@Test
@@ -81,6 +83,6 @@ class CheckEmailAuthUseCaseTest_UNDER_MAX_TRYCOUNT extends AbstractUseCaseTest {
 		// Then
 		assertFalse(response.getAuthentication());
 		Assertions.assertThat(response.getTryCount())
-				.isEqualTo(UMockEmailAutHistoryDao.UNDER_MAX_TRY_COUNT + 1);
+				.isEqualTo(UMcokGetEmailAuthCheckTryCountService.UNDER_MAX_TRY_COUNT + 1);
 	}
 }

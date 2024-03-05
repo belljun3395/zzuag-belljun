@@ -6,10 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.zzaug.api.ApiApp;
 import com.zzaug.api.domain.member.dto.CheckEmailAuthUseCaseRequest;
 import com.zzaug.api.domain.member.dto.CheckEmailAuthUseCaseResponse;
-import com.zzaug.api.domain.member.usecase.config.mock.repository.UMockEmailAutHistoryDao;
 import com.zzaug.api.domain.member.usecase.config.mock.repository.UMockEmailAuthDao;
 import com.zzaug.api.domain.member.usecase.config.mock.repository.UMockExternalContactDao;
+import com.zzaug.api.domain.member.usecase.config.mock.service.UMcokGetEmailAuthCheckTryCountService;
 import com.zzaug.api.domain.member.usecase.config.mock.service.UMockGetMemberSourceQuery;
+import com.zzaug.api.domain.member.usecase.config.mock.service.UMockSaveEmailAuthHistoryCommand;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,8 +23,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 			ApiApp.class,
 			UMockExternalContactDao.class,
 			UMockEmailAuthDao.class,
-			UMockEmailAutHistoryDao.class,
 			UMockGetMemberSourceQuery.class,
+			UMcokGetEmailAuthCheckTryCountService.class,
+			UMockSaveEmailAuthHistoryCommand.class,
 		})
 class CheckEmailAuthUseCaseTest extends AbstractUseCaseTest {
 
