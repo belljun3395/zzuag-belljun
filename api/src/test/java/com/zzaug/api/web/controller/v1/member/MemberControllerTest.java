@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.epages.restdocs.apispec.HeaderDescriptorWithType;
@@ -30,6 +29,7 @@ import com.zzaug.api.domain.member.usecase.SearchMemberUseCase;
 import com.zzaug.api.domain.member.usecase.UpdateMemberUseCase;
 import com.zzaug.api.web.controller.config.TestTokenUserDetailsService;
 import com.zzaug.api.web.controller.v1.description.Description;
+import com.zzaug.api.web.controller.v1.description.MemberDescription;
 import com.zzaug.api.web.dto.member.LoginRequest;
 import com.zzaug.api.web.dto.member.MemberSaveRequest;
 import com.zzaug.api.web.dto.member.MemberUpdateRequest;
@@ -46,8 +46,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
-import org.springframework.restdocs.payload.FieldDescriptor;
-import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -158,16 +156,7 @@ class MemberControllerTest {
 												.requestSchema(Schema.schema("UpdateMemberRequest"))
 												.requestHeaders(Description.authHeader(), Description.xZzaugIdHeader())
 												.responseSchema(Schema.schema("UpdateMemberResponse"))
-												.responseFields(
-														Description.success(
-																new FieldDescriptor[] {
-																	fieldWithPath("data")
-																			.type(JsonFieldType.OBJECT)
-																			.description("data"),
-																	fieldWithPath("data.accessToken")
-																			.type(JsonFieldType.STRING)
-																			.description("어세스 토큰"),
-																}))
+												.responseFields(Description.success(MemberDescription.updateMember()))
 												.build())));
 	}
 
@@ -188,14 +177,14 @@ class MemberControllerTest {
 				.andExpect(status().is2xxSuccessful())
 				.andDo(
 						document(
-								"UpdateMember",
+								"DeleteMember",
 								resource(
 										ResourceSnippetParameters.builder()
 												.description("회원 탈퇴를 진행합니다.")
 												.tag(TAG)
-												.requestSchema(Schema.schema("UpdateMemberRequest"))
+												.requestSchema(Schema.schema("DeleteMemberRequest"))
 												.requestHeaders(Description.authHeader(), Description.xZzaugIdHeader())
-												.responseSchema(Schema.schema("UpdateMemberResponse"))
+												.responseSchema(Schema.schema("DeleteMemberResponse"))
 												.responseFields(Description.deleted())
 												.build())));
 	}
@@ -232,16 +221,7 @@ class MemberControllerTest {
 												.requestSchema(Schema.schema("LoginMemberRequest"))
 												.requestHeaders(Description.authHeader(), Description.xZzaugIdHeader())
 												.responseSchema(Schema.schema("LoginMemberResponse"))
-												.responseFields(
-														Description.success(
-																new FieldDescriptor[] {
-																	fieldWithPath("data")
-																			.type(JsonFieldType.OBJECT)
-																			.description("data"),
-																	fieldWithPath("data.accessToken")
-																			.type(JsonFieldType.STRING)
-																			.description("어세스 토큰"),
-																}))
+												.responseFields(Description.success(MemberDescription.loginMember()))
 												.responseHeaders(
 														new HeaderDescriptorWithType[] {Description.setCookieHeader()})
 												.build())));
@@ -279,25 +259,7 @@ class MemberControllerTest {
 												.requestHeaders(Description.authHeader(), Description.xZzaugIdHeader())
 												.pathParameters(parameterWithName("id").description("조회할 멤버의 아이디"))
 												.responseSchema(Schema.schema("ReadMemberResponse"))
-												.responseFields(
-														Description.success(
-																new FieldDescriptor[] {
-																	fieldWithPath("data")
-																			.type(JsonFieldType.OBJECT)
-																			.description("data"),
-																	fieldWithPath("data.id")
-																			.type(JsonFieldType.NUMBER)
-																			.description("멤버 아이디"),
-																	fieldWithPath("data.certification")
-																			.type(JsonFieldType.STRING)
-																			.description("멤버 증명(아이디)"),
-																	fieldWithPath("data.email")
-																			.type(JsonFieldType.STRING)
-																			.description("멤버 이메일"),
-																	fieldWithPath("data.github")
-																			.type(JsonFieldType.STRING)
-																			.description("멤버 깃허브"),
-																}))
+												.responseFields(Description.success(MemberDescription.readMember()))
 												.build())));
 	}
 
@@ -335,25 +297,7 @@ class MemberControllerTest {
 												.requestSchema(Schema.schema("SearchMemberRequest"))
 												.requestHeaders(Description.authHeader(), Description.xZzaugIdHeader())
 												.responseSchema(Schema.schema("SearchMemberResponse"))
-												.responseFields(
-														Description.success(
-																new FieldDescriptor[] {
-																	fieldWithPath("data")
-																			.type(JsonFieldType.OBJECT)
-																			.description("data"),
-																	fieldWithPath("data.id")
-																			.type(JsonFieldType.NUMBER)
-																			.description("멤버 아이디"),
-																	fieldWithPath("data.certification")
-																			.type(JsonFieldType.STRING)
-																			.description("멤버 증명(아이디)"),
-																	fieldWithPath("data.email")
-																			.type(JsonFieldType.STRING)
-																			.description("멤버 이메일"),
-																	fieldWithPath("data.github")
-																			.type(JsonFieldType.STRING)
-																			.description("멤버 깃허브"),
-																}))
+												.responseFields(Description.success(MemberDescription.searchMember()))
 												.build())));
 	}
 
@@ -378,24 +322,15 @@ class MemberControllerTest {
 				.andExpect(status().is2xxSuccessful())
 				.andDo(
 						document(
-								"MemberToken",
+								"RenewalToken",
 								resource(
 										ResourceSnippetParameters.builder()
 												.description("토큰을 갱신합니다.")
 												.tag(TAG)
-												.requestSchema(Schema.schema("MemberTokenRequest"))
+												.requestSchema(Schema.schema("RenewalTokenRequest"))
 												.requestHeaders(Description.authHeader(), Description.xZzaugIdHeader())
-												.responseSchema(Schema.schema("MemberTokenResponse"))
-												.responseFields(
-														Description.success(
-																new FieldDescriptor[] {
-																	fieldWithPath("data")
-																			.type(JsonFieldType.OBJECT)
-																			.description("data"),
-																	fieldWithPath("data.accessToken")
-																			.type(JsonFieldType.STRING)
-																			.description("어세스 토큰"),
-																}))
+												.responseSchema(Schema.schema("RenewalTokenResponse"))
+												.responseFields(Description.success(MemberDescription.renewalToken()))
 												.responseHeaders(
 														new HeaderDescriptorWithType[] {Description.setCookieHeader()})
 												.build())));

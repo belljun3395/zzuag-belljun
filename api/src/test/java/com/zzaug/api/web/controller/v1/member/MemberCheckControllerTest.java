@@ -7,7 +7,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.epages.restdocs.apispec.ResourceSnippetParameters;
@@ -22,6 +21,7 @@ import com.zzaug.api.domain.member.usecase.CheckEmailAuthUseCase;
 import com.zzaug.api.domain.member.usecase.EmailAuthUseCase;
 import com.zzaug.api.web.controller.config.TestTokenUserDetailsService;
 import com.zzaug.api.web.controller.v1.description.Description;
+import com.zzaug.api.web.controller.v1.description.MemberCheckDescription;
 import com.zzaug.api.web.dto.member.CheckEmailAuthRequest;
 import java.util.UUID;
 import javax.servlet.http.Cookie;
@@ -35,8 +35,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.restdocs.payload.FieldDescriptor;
-import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -101,16 +99,7 @@ class MemberCheckControllerTest {
 												.requestParameters(
 														parameterWithName("certification").description("증명(아이디)"))
 												.responseSchema(Schema.schema("CheckMemberResponse"))
-												.responseFields(
-														Description.success(
-																new FieldDescriptor[] {
-																	fieldWithPath("data")
-																			.type(JsonFieldType.OBJECT)
-																			.description("data"),
-																	fieldWithPath("data.duplication")
-																			.type(JsonFieldType.BOOLEAN)
-																			.description("요청 증명(아이디) 중복 여부"),
-																}))
+												.responseFields(Description.success(MemberCheckDescription.checkMember()))
 												.build())));
 	}
 
@@ -144,16 +133,7 @@ class MemberCheckControllerTest {
 														parameterWithName("email").description("이메일"),
 														parameterWithName("nonce").description("인증번호"))
 												.responseSchema(Schema.schema("EmailAuthResponse"))
-												.responseFields(
-														Description.success(
-																new FieldDescriptor[] {
-																	fieldWithPath("data")
-																			.type(JsonFieldType.OBJECT)
-																			.description("data"),
-																	fieldWithPath("data.duplication")
-																			.type(JsonFieldType.BOOLEAN)
-																			.description("요청 이메일 중복 여부"),
-																}))
+												.responseFields(Description.success(MemberCheckDescription.emailAuth()))
 												.build())));
 	}
 
@@ -191,18 +171,7 @@ class MemberCheckControllerTest {
 												.requestHeaders(Description.authHeader(), Description.xZzaugIdHeader())
 												.responseSchema(Schema.schema("CheckEmailAuthResponse"))
 												.responseFields(
-														Description.success(
-																new FieldDescriptor[] {
-																	fieldWithPath("data")
-																			.type(JsonFieldType.OBJECT)
-																			.description("data"),
-																	fieldWithPath("data.authentication")
-																			.type(JsonFieldType.BOOLEAN)
-																			.description("인증 번호 확인 결과"),
-																	fieldWithPath("data.tryCount")
-																			.type(JsonFieldType.NUMBER)
-																			.description("인증 번호 확인 시도 횟수"),
-																}))
+														Description.success(MemberCheckDescription.checkEmailAuth()))
 												.build())));
 	}
 }
