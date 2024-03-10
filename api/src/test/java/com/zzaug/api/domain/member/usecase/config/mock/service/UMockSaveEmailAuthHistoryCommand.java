@@ -1,7 +1,8 @@
 package com.zzaug.api.domain.member.usecase.config.mock.service;
 
 import com.zzaug.api.domain.member.data.entity.history.EmailAuthHistoryEntity;
-import com.zzaug.api.domain.member.model.auth.TryCountElement;
+import com.zzaug.api.domain.member.model.auth.SavedTryCountElement;
+import com.zzaug.api.domain.member.model.auth.TryCount;
 import com.zzaug.api.domain.member.service.history.SaveEmailAuthHistoryCommand;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.test.context.TestComponent;
@@ -14,10 +15,11 @@ public class UMockSaveEmailAuthHistoryCommand implements SaveEmailAuthHistoryCom
 
 	@Override
 	public EmailAuthHistoryEntity execute(
-			TryCountElement tryCount, Long memberId, Long emailAuthId, String reason) {
+			TryCount tryCount, Long memberId, Long emailAuthId, String reason) {
 		if (tryCount.isNew()) {
+			SavedTryCountElement savedTryCountElement = (SavedTryCountElement) tryCount;
 			return save(
-					tryCount.getEmailAuthLogId(),
+					savedTryCountElement.getEmailAuthLogId(),
 					memberId,
 					emailAuthId,
 					reason,

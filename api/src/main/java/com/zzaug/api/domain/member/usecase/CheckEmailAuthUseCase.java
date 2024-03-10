@@ -17,7 +17,7 @@ import com.zzaug.api.domain.member.external.security.token.RoleUserAuthToken;
 import com.zzaug.api.domain.member.external.security.token.RoleUserAuthTokenGenerator;
 import com.zzaug.api.domain.member.model.auth.EmailAuthResult;
 import com.zzaug.api.domain.member.model.auth.EmailAuthSource;
-import com.zzaug.api.domain.member.model.auth.TryCountElement;
+import com.zzaug.api.domain.member.model.auth.TryCount;
 import com.zzaug.api.domain.member.model.member.MemberSource;
 import com.zzaug.api.domain.member.service.history.GetEmailAuthCheckTryCountService;
 import com.zzaug.api.domain.member.service.history.SaveEmailAuthHistoryCommand;
@@ -67,7 +67,7 @@ public class CheckEmailAuthUseCase {
 		}
 
 		// 이메일 인증을 시도한 횟수를 조회
-		TryCountElement tryCount = getEmailAuthCheckTryCountService.execute(memberId, emailAuthId);
+		TryCount tryCount = getEmailAuthCheckTryCountService.execute(memberId, emailAuthId);
 		if (tryCount.isOver()) {
 			return CheckEmailAuthUseCaseResponse.builder()
 					.authentication(false)
@@ -113,7 +113,7 @@ public class CheckEmailAuthUseCase {
 		return EmailAuthSourceConverter.from(emailAuthSource.get());
 	}
 
-	private TryCountElement calculateTryCount(EmailAuthResult result, TryCountElement tryCount) {
+	private TryCount calculateTryCount(EmailAuthResult result, TryCount tryCount) {
 		if (!result.isSuccess()) {
 			tryCount.plus();
 		}

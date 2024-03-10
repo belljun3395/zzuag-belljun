@@ -4,7 +4,9 @@ import static com.zzaug.api.domain.member.model.auth.EmailAuthResult.SUCCESS;
 
 import com.zzaug.api.domain.member.dao.history.EmailAutHistoryDao;
 import com.zzaug.api.domain.member.data.entity.history.EmailAuthHistoryEntity;
-import com.zzaug.api.domain.member.model.auth.TryCountElement;
+import com.zzaug.api.domain.member.model.auth.NewTryCountElement;
+import com.zzaug.api.domain.member.model.auth.SavedTryCountElement;
+import com.zzaug.api.domain.member.model.auth.TryCount;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,15 +24,15 @@ public class GetEmailAuthCheckTryCountServiceImpl implements GetEmailAuthCheckTr
 
 	@Override
 	@Transactional
-	public TryCountElement execute(Long memberId, Long emailAuthId) {
+	public TryCount execute(Long memberId, Long emailAuthId) {
 		// 이메일 인증을 실패한 이력이 있는지 조회
 		Optional<EmailAuthHistoryEntity> emailAuthLogSource =
 				emailAutHistoryDao.findByMemberIdAndEmailAuthIdAndReasonNotAndDeletedFalse(
 						memberId, emailAuthId, SUCCESS.getReason());
 		if (emailAuthLogSource.isEmpty()) {
-			return TryCountElement.newState();
+			return NewTryCountElement.newState();
 		} else {
-			return TryCountElement.builder()
+			return SavedTryCountElement.builder()
 					.tryCount(Math.toIntExact(emailAuthLogSource.get().getTryCount()))
 					.emailAuthLogId(emailAuthLogSource.get().getId())
 					.build();

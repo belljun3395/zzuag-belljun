@@ -7,12 +7,12 @@ import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-class TryCountElementTest {
+class TryCountTest {
 
 	@Test
 	void 처음_생성된_객체인지_확인합니다() {
 		// given
-		TryCountElement newState = TryCountElement.newState();
+		TryCount newState = NewTryCountElement.newState();
 
 		// when
 		boolean result = newState.isNew();
@@ -25,10 +25,10 @@ class TryCountElementTest {
 	void 시도_횟수가_최대_시도_횟수를_초과했는지_확인합니다() {
 		// given
 		int maxTryCount = 3;
-		TryCountElement tryCountElement = TryCountElement.builder().tryCount(maxTryCount).build();
+		TryCount savedTryCountElement = SavedTryCountElement.builder().tryCount(maxTryCount).build();
 
 		// when
-		boolean result = tryCountElement.isOver();
+		boolean result = savedTryCountElement.isOver();
 
 		// then
 		assertTrue(result);
@@ -38,19 +38,19 @@ class TryCountElementTest {
 	void 시도_횟수를_증가시킵니다() {
 		// given
 		int givenTryCount = 0;
-		TryCountElement tryCountElement = TryCountElement.builder().tryCount(givenTryCount).build();
+		TryCount savedTryCountElement = SavedTryCountElement.builder().tryCount(givenTryCount).build();
 
 		// when
-		tryCountElement.plus();
+		savedTryCountElement.plus();
 
 		// then
-		assertEquals(givenTryCount + 1, tryCountElement.getTryCount());
+		assertEquals(givenTryCount + 1, savedTryCountElement.getTryCount());
 	}
 
 	@Test
 	void 새로운_상태에서_시도_횟수를_여러번_증가시키면_예외가_발생합니다() {
 		// given
-		TryCountElement newState = TryCountElement.newState();
+		TryCount newState = NewTryCountElement.newState();
 
 		// when
 		newState.plus();
