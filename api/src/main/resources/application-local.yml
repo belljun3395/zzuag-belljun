@@ -12,3 +12,8 @@ spring:
       - log-local
       - security-local
       - cookie-local
+
+springdoc:
+  swagger-ui:
+    url: /docs/openapi3.yaml
+    path: /swagger
