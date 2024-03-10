@@ -136,6 +136,8 @@ config 패키지의 클래스를 통해 API 서버에서 어떠한 설정을 하
 
 ## API 문서
 
+swagger 배포 주소: https://zzuag.shop/docs/swagger-ui/index.html
+
 API 문서의 경우 컨트롤러 테스트를 통해 자동으로 생성되는 문서를 사용합니다.
 
 해당 문서를 확인하기 위해서는 아래의 테스크를 실행합니다.

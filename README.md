@@ -6,6 +6,8 @@
 
 ## 프로젝트를 실행하는 방법
 
+swagger 배포 주소: https://zzuag.shop/docs/swagger-ui/index.html
+
 ### 프로젝트 개발 환경을 구성합니다.
 
 docker가 설치되어 있어야 합니다.
